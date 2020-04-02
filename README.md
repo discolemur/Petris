@@ -2,7 +2,7 @@
 
 Disclaimer: This game was created by people at Washington University in St. Louis. Since I played it at a professional retreat, and the instruction paper did not contain any author, I cannot attribute it to anyone specifically. I am copying this in electronic form in good faith, assuming there is no copyright on the material.
 
-**Description:**
+**Description (of the board game version):**
 
 - The game board consists of a blank, numbered honeycomb pattern representing a petri dish.
 

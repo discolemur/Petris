@@ -1,12 +1,25 @@
 "use strict";
 
-var verbose = false;
+var _verbose_board = false;
 function verbosePrint(msg) {
-    if (verbose) {
+    if (_verbose_board) {
         console.log(msg);
     }
 }
 
+/**
+ * BoardState gives global variables important to the state of the board. 
+ */
+var BoardState = {
+    NO_USER: -1,
+    ANTIBIOTIC: -2,
+    COMPETITION: -3,
+    POSSIBLE_PLAYERS: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+};
+
+/**
+ * Cell holds its id, neighbors, and occupation state.
+ */
 class Cell {
     /**
      * Neighbors are ordered according to this clock-based convention:
@@ -16,6 +29,7 @@ class Cell {
     constructor(id) {
         this.id = id;
         this.neighbors = [null, null, null, null, null, null];
+        this.occupation = BoardState.NO_USER;
     }
     /**
      * Links cell to its neighbor at the given position.
@@ -25,11 +39,12 @@ class Cell {
      * @param {Cell} neighbor
      */
     link(position, neighbor) {
-        if (this.neighbors.filter(x => x === null).length == 0 || this.isAdjacent(neighbor)) {
+        if (this.neighbors.filter(x => x === null).length == 0
+            || this.isAdjacent(neighbor)) {
             return false;
         }
         this.neighbors[position] = neighbor;
-        neighbor[(position+3)%6] = this;
+        neighbor[(position + 3) % 6] = this;
         return true;
     }
     /**
@@ -37,7 +52,7 @@ class Cell {
      * @param {Cell} neighbor 
      */
     isAdjacent(neighbor) {
-        return this.neighbors.filter(x => (x!== null && x.id == neighbor.id)).length > 0;
+        return this.neighbors.filter(x => (x !== null && x.id == neighbor.id)).length > 0;
     }
     /**
      * Returns the position (-1 if neighbor is not found) of neighbor in the list of neighbors.
@@ -53,16 +68,21 @@ class Cell {
         }
         return position;
     }
-}
-
-class BoardState {
-    constructor() {
-
+    getNumberOfAdjacentHigherIDConnections() {
+        return this.neighbors.filter(
+            (n) => (n.id > this.id && n.occupation == this.occupation)
+        ).length;
     }
 }
 
+/**
+ * Board holds its players and cells.
+ * It can merge with other boards.
+ * It can calculate the current scores.
+ */
 class Board {
-    constructor() {
+    constructor(numPlayers) {
+        this.players = BoardState.POSSIBLE_PLAYERS.slice(0, numPlayers);
         this.cells = [];
         this.makeCells();
     }
@@ -76,7 +96,7 @@ class Board {
             let cell = new Cell(id_counter++);
             if (col > 0) {
                 verbosePrint('linking top row together');
-                this.linkCells(this.cells[col-1], top_shape[col-1], cell);
+                this.linkCells(this.cells[col - 1], top_shape[col - 1], cell);
             }
             this.cells.push(cell);
         }
@@ -84,7 +104,7 @@ class Board {
         for (let row = 1; row < 7; ++row) {
             for (let col = 0; col < top_width; ++col) {
                 let cell = new Cell(id_counter++);
-                let indexAbove = col + (row-1)*top_width;
+                let indexAbove = col + (row - 1) * top_width;
                 verbosePrint(`linking cell at ${this.cells.length} to row above cell at ${indexAbove}`);
                 let cellAbove = this.cells[indexAbove];
                 this.linkCells(cell, 0, cellAbove);
@@ -201,7 +221,61 @@ class Board {
         }
         return true;
     }
-    getState() {
-
+    /**
+     * Modifies this Board into combination of this and the array of boards.
+     * Returns this.
+     * @param {Array<Board>} boards 
+     */
+    combine(boards) {
+        // Add this board to the mix, then party on, dudes!
+        boards.push(this);
+        for (let i = 0; i < this.cells.length; ++i) {
+            // This is an array of only unique occupation values at this cell.
+            let occupations = Array.from(new Set(boards.map(b => b.cells[i].occupation)));
+            // Handle antibiotics
+            if (occupations.indexOf(BoardState.ANTIBIOTIC) != -1) {
+                this.cells[i].occupation = BoardState.ANTIBIOTIC;
+            }
+            // Handle competitions
+            else if (occupations.filter(x => (
+                x != BoardState.NO_USER &&
+                x != BoardState.ANTIBIOTIC &&
+                x != BoardState.COMPETITION
+            )).length > 1 || occupations.indexOf(BoardState.COMPETITION) != -1) {
+                this.cells[i].occupation = BoardState.COMPETITION;
+            }
+            // Handle normal cases
+            else {
+                let occupiedUsers = occupations.filter(x => (x != BoardState.NO_USER));
+                assert(occupiedUsers.length <= 1, 'Fatal error: Issue calculating cell occupation.');
+                if (occupiedUsers.length == 1) {
+                    this.cells[i].occupation = occupiedUsers[0];
+                }
+            }
+        }
+        return this;
+    }
+    /**
+     * Returns an object containing the score of each player.
+     */
+    getScores() {
+        let scores = {};
+        for (let player of this.players) {
+            scores[player] = this.cells
+                .filter(c => c.occupation == player)
+                .map(c => c.getNumberOfAdjacentHigherIDConnections())
+                .reduce((a, b) => a + b, 0);
+        }
+        return scores;
+    }
+    /**
+     * Prepares cells for colonization by removing antibiotics from the previous round.
+     */
+    prepareForColonization() {
+        for (let cell of this.cells) {
+            if (cell.occupation == BoardState.ANTIBIOTIC) {
+                cell.occupation = BoardState.NO_USER;
+            }
+        }
     }
 }
