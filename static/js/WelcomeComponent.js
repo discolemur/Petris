@@ -9,10 +9,6 @@ class WelcomeComponent extends Component {
     this.canCreate = true;
     this.canJoin = false;
     this.messageCallback = this.messageCallback.bind(this);
-    this.errorMessage = this.errorMessage.bind(this);
-    this.create = this.create.bind(this);
-    this.join = this.join.bind(this);
-    this.options = this.options.bind(this);
     this.updateRoom = this.updateRoom.bind(this);
     this.updateName = this.updateName.bind(this);
     this.connectToRoom = this.connectToRoom.bind(this);
@@ -21,6 +17,10 @@ class WelcomeComponent extends Component {
     this.createIfRoomEmpty = this.createIfRoomEmpty.bind(this);
     this.onFailToConnect = this.onFailToConnect.bind(this);
     this.onConnectionLost = this.onConnectionLost.bind(this);
+    this.errorMessage = this.errorMessage.bind(this);
+    this.options = this.options.bind(this);
+    this.create = this.create.bind(this);
+    this.join = this.join.bind(this);
     this.communicator = props.communicator;
     this.communicator.setMessageCallback(this.messageCallback);
     this.setOption = (opt) => this.setState({ 'option': opt });
@@ -34,48 +34,6 @@ class WelcomeComponent extends Component {
     if (msg.canJoin) {
       this.canJoin = true;
     }
-  }
-  bogus() {
-    return h('div', { class: 'column' }, 'Wow. You broke it. I don\'t know how, but you broke it.');
-  }
-  errorMessage() {
-    return this.state.roomState.connectionMessage === null ? null
-    : h('div', { class: 'columnItem textItem noBorder errormsg' }, this.state.roomState.connectionMessage);
-  }
-  create() {
-    return h('div', { class: 'column', margin: 'auto' },
-      this.errorMessage(),
-      h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateName(txt), value: this.state.roomState.playerName }),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: 'columnItem textItem noBorder' }, 'Room Name'),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' }, hexagonBtn('Create Room', () => this.connectToRoom(true)))
-    )
-  }
-  join() {
-    return h('div', { class: 'column', margin: 'auto' },
-      this.errorMessage(),
-      h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateName(txt), value: this.state.roomState.playerName }),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: 'columnItem textItem noBorder' }, 'Room Name'),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' }, hexagonBtn('Join Room', () => this.connectToRoom(false)))
-    )
-  }
-  options() {
-    return h('div', { class: 'column', margin: 'auto' },
-      hexagonBtn('Create Room', () => this.setOption('create')),
-      h('div', { style: { display: 'block', height: '0.4em' } }),
-      hexagonBtn('Join Room', () => this.setOption('join'))
-    )
   }
   updateRoom(event) {
     let roomName = event.target.value;
@@ -105,7 +63,7 @@ class WelcomeComponent extends Component {
     let roomState = this.state.roomState;
     if (roomState.roomName == null || roomState.roomName.length == 0
       || roomState.playerName == null || roomState.playerName.length == 0) {
-      console.log('Must first enter a room name and player name.')
+      this.setState({ roomState: roomState.setConnectionMessage('Please type your name and a room name.') });
       return;
     }
     this.communicator.connect(
@@ -165,6 +123,64 @@ class WelcomeComponent extends Component {
     console.log("Connection Lost: " + responseObject.errorMessage);
     let roomState = this.state.roomState.setConnectionMessage('Connection to room lost.');
     this.setState({ roomState: roomState });
+  }
+  bogus() {
+    return h('div', { class: 'column' }, 'Wow. You broke it. I don\'t know how, but you broke it.');
+  }
+  errorMessage() {
+    return this.state.roomState.connectionMessage === null ? null
+      : h('div', { class: 'columnItem textItem noBorder errormsg' }, this.state.roomState.connectionMessage);
+  }
+  options() {
+    let buttonWidth = 200;
+    let buttonBorderWidth = 5;
+    let cellColor = '#496D89';
+    let borderColor = '#718EA4';
+    return h('div', { class: 'column', margin: 'auto' },
+      hexagonButton('Create Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.setOption('create')),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      hexagonButton('Join Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.setOption('join'))
+    )
+  }
+  create() {
+    let buttonWidth = 200;
+    let buttonBorderWidth = 5;
+    let cellColor = '#496D89';
+    let borderColor = '#718EA4';
+    return h('div', { class: 'column', margin: 'auto' },
+      this.errorMessage(),
+      h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateName(txt), value: this.state.roomState.playerName }),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('div', { class: 'columnItem textItem noBorder' }, 'Room Name'),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
+        hexagonButton('Create Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.connectToRoom(true))
+      )
+    )
+  }
+  join() {
+    let buttonWidth = 200;
+    let buttonBorderWidth = 5;
+    let cellColor = '#496D89';
+    let borderColor = '#718EA4';
+    return h('div', { class: 'column', margin: 'auto' },
+      this.errorMessage(),
+      h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateName(txt), value: this.state.roomState.playerName }),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('div', { class: 'columnItem textItem noBorder' }, 'Room Name'),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
+        hexagonButton('Join Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.connectToRoom(false))
+      )
+    )
   }
   render(props, state) {
     return (

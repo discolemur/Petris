@@ -69,3 +69,22 @@ class Communicator {
         this._sendMessage(JSON.stringify(obj));
     }
 }
+
+class CommunicatorDummy {
+    constructor() {
+    }
+    connect(roomName, playerID, onConnectCallback, onFailure) {
+    }
+    setOnConnectionLost(onConnectionLost) {
+    }
+    setMessageCallback(messageCallback) {
+    }
+    onConnect(callback) {
+    }
+    onMessageArrived(msg) {
+    }
+    _sendMessage(msg) {
+    }
+    sendObject(obj) {
+    }
+}

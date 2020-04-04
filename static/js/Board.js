@@ -18,18 +18,40 @@ var BoardState = {
 };
 
 /**
- * Cell holds its id, neighbors, and occupation state.
+ * Cell holds its id, neighbors, occupation state, and whether the spot was blocked by an antibiotic.
  */
 class Cell {
     /**
      * Neighbors are ordered according to this clock-based convention:
      * [ 12:00, 2:00, 4:00, 6:00, 8:00, 10:00 ]
-     * @param {*} id This should be a unique number.
+     * Center is a float that represents the coordinate center of the cell.
+     * Preact will handle scaling on-screen.
+     * Just keep scaling consistent among the cell objects.
+     * @param {Number} id This should be a unique, non-negative number.
      */
     constructor(id) {
         this.id = id;
+        this.center = null;
         this.neighbors = [null, null, null, null, null, null];
         this.occupation = BoardState.NO_USER;
+        this.wasProtected = false;
+    }
+    /**
+     * Conveniently sets antibiotic protection to false
+     */
+    resetProtection() {
+        this.wasProtected = false;
+    }
+    isSurrounded() {
+        return this.neighbors.filter(x => x === null).length == 0;
+    }
+    setRelativeCenter(neighbor, positionToNeighbor) {
+        let nX = neighbor.center[0];
+        let nY = neighbor.center[1];
+        let angle = (Math.PI / 2) + (positionToNeighbor * Math.PI / 3);
+        let x = nX + Math.cos(angle);
+        let y = nY + Math.sin(angle);
+        this.center = [x, y];
     }
     /**
      * Links cell to its neighbor at the given position.
@@ -39,12 +61,21 @@ class Cell {
      * @param {Cell} neighbor
      */
     link(position, neighbor) {
-        if (this.neighbors.filter(x => x === null).length == 0
+        if (this.center === null && neighbor.center === null) {
+            console.log('Major error! At least one of the neighbors must have a center!');
+        }
+        if (this.isSurrounded() || neighbor.isSurrounded()
             || this.isAdjacent(neighbor)) {
             return false;
         }
+        let positionFromNeighbor = (position + 3) % 6;
         this.neighbors[position] = neighbor;
-        neighbor[(position + 3) % 6] = this;
+        neighbor.neighbors[positionFromNeighbor] = this;
+        if (this.center === null) {
+            this.setRelativeCenter(neighbor, position);
+        } else if (neighbor.center === null) {
+            neighbor.setRelativeCenter(this, positionFromNeighbor);
+        }
         return true;
     }
     /**
@@ -76,19 +107,15 @@ class Cell {
 }
 
 /**
- * Move holds playerID, cellID, and action.
+ * Move holds playerID, colonize (tuple), and antibiotic.
  */
 class Move {
-    constructor(playerID, cellID, action) {
+    constructor(playerID, colonize, antibiotic) {
         this.playerID = playerID;
-        this.cellID = cellID;
-        this.action = action;
+        this.colonize = colonize;
+        this.antibiotic = antibiotic;
     }
 }
-Move.ACTIONS = {
-    COLONIZE : 44,
-    ANTIBIOTIC : 55
-};
 
 /**
  * Board holds its players and cells.
@@ -107,7 +134,10 @@ class Board {
         let id_counter = 1;
         let top_width = top_shape.length + 1;
         // Make top row
-        for (let col = 0; col < top_width; ++col) {
+        let root = new Cell(id_counter++);
+        root.center = [0, 0];
+        this.cells.push(root);
+        for (let col = 1; col < top_width; ++col) {
             let cell = new Cell(id_counter++);
             if (col > 0) {
                 verbosePrint('linking top row together');
@@ -132,6 +162,12 @@ class Board {
      * Validates that the board is linked together in a valid manner.
      */
     confirmBoardCreated() {
+        let hasCenterless = this.cells.map(c=>c.center).filter(c=>c===null).length > 0;
+        if (hasCenterless) {
+            console.log('Board failed to set all centers.');
+        } else {
+            console.log('All cells have centers.');
+        }
         let success = true;
         for (let i = 0; i < this.cells.length; ++i) {
             let cell = this.cells[i];
@@ -239,10 +275,26 @@ class Board {
     /**
      * Performs all moves on the board, considering the rules.
      * NOTE: do not call this function until all moves have been submitted.
-     * @param {Array<Move>} moves
+     * @param {Array<Move>} allMove
      */
-    performMoves(moves) {
-        // TODO
+    performMoves(allMoves) {
+        this.cells.map(c=>resetProtection());
+        allMoves = allMoves.map(m=>Object.setPrototypeOf(m, Move.prototype))
+        let antibiotics = allMoves.map(m=>m.antibiotic);
+        for (let move of allMoves) {
+            let enemyColonizations = allMoves.filter(m=>m.playerID != move.playerID).map(m=>m.colonize).flat();
+            for (let cellID of move.colonize) {
+                if (antibiotics.indexOf(cellID) >= 0) {
+                    // Handle antibiotics TODO: maybe show all antibiotics used? Or just the ones that were effective?
+                    this.cells[cellID].wasProtected = true;
+                } else if (enemyColonizations.indexOf(cellID) >= 0) {
+                    // Handle competitions
+                    this.cells[cellID].occupation = BoardState.COMPETITION;
+                } else {
+                    this.cells[cellID].occupation = move.playerID;
+                }
+            }
+        }
     }
     /**
      * Modifies this Board into combination of this and the array of boards.

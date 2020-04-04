@@ -1,0 +1,42 @@
+/* Hexagon (200px) taken from https://csshexagon.com/  Thank you so much! */
+/* All specific numbers (except rotations) are scalable, as defined in Hexagon.js */
+
+.hexagon {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.hexTop,
+.hexBottom {
+  position: absolute;
+  overflow: hidden;
+  -webkit-transform: scaleY(0.5774) rotate(-45deg);
+  -ms-transform: scaleY(0.5774) rotate(-45deg);
+  transform: scaleY(0.5774) rotate(-45deg);
+  background: inherit;
+}
+.hexagon span {
+  width: 100%;
+  display: block;
+  text-align: center;
+  position: relative;
+}
+.hexTop:after {
+  background-position: center top;
+}
+.hexBottom:after {
+  background-position: center bottom;
+}
+.hexagon, .hexBottom, .hexTop {
+  box-sizing: border-box;
+}
+.hexCell {
+  display: block;
+  position: absolute;
+}
+.rotateHex {
+  -webkit-transform: rotate(-30deg);
+  -ms-transform: rotate(-30deg);
+  transform: rotate(-30deg);
+}
