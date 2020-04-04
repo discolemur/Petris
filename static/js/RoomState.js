@@ -76,3 +76,5 @@ class RoomState {
     return this;
   }
 }
+
+RoomState.MAX_PLAYERS = 10;

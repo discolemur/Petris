@@ -9,9 +9,9 @@ class MQTT_CONFIG {
 }
 
 // Goal: pseudo-serverless communication -- the host acts like a server.
-// TODO: When host creates a new room, it pings to find any other hosts. If another host exists, it fails to create the room.
+// When host creates a new room, it pings to find any other hosts. If another host exists, it fails to create the room.
 // TODO: Once started, the host collects people's moves and compiles them into one board, then sends the updated board to everyone once all people have made their moves.
-// TODO: ping around occasionally to get the list of players.
+// TODO: ping around occasionally to make sure the player list is up-to-date (no dropouts).
 
 class Communicator {
     constructor() {
