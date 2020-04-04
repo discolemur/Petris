@@ -10,14 +10,20 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/static/img/icon/favicon-16x16.png">
     <link rel="manifest" href="/static/img/icon/site.webmanifest">
     <link rel="stylesheet" href="/static/css/styles.css">
-    <link href="https://fonts.googleapis.com/css?family=Droid+Sans|Martel" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css?family=Droid+Sans|Martel" rel="stylesheet">
     <script src="/static/js/lib/preact.min.js"></script>
+    <!-- MQTT client code located at https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js -->
+    <script src="/static/js/lib/mqttws31.min.js" type="text/javascript"></script>
     <script>const h = preact.h; const render = preact.render; const Component = preact.Component;</script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   </head>
   <body>
     <div id="Main"></div>
+    <script src="/static/js/Communicator.js"></script>
+    <script src="/static/js/RoomState.js"></script>
     <script src="/static/js/Board.js"></script>
+    <script src="/static/js/RoomComponent.js"></script>
+    <script src="/static/js/WelcomeComponent.js"></script>
     <script src="/static/js/Main.js"></script>
   </body>
 </html>

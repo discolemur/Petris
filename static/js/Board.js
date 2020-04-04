@@ -52,7 +52,7 @@ class Cell {
      * @param {Cell} neighbor 
      */
     isAdjacent(neighbor) {
-        return this.neighbors.filter(x => (x !== null && x.id == neighbor.id)).length > 0;
+        return this.neighbors.filter(x => (x !== null && x.id === neighbor.id)).length > 0;
     }
     /**
      * Returns the position (-1 if neighbor is not found) of neighbor in the list of neighbors.
@@ -61,7 +61,7 @@ class Cell {
     getPosition(neighbor) {
         let position = -1;
         for (let i = 0; i < 6; ++i) {
-            if (this.neighbors[i] !== null && this.neighbors[i].id == neighbor.id) {
+            if (this.neighbors[i] !== null && this.neighbors[i].id === neighbor.id) {
                 position = i;
                 break;
             }
@@ -74,6 +74,21 @@ class Cell {
         ).length;
     }
 }
+
+/**
+ * Move holds playerID, cellID, and action.
+ */
+class Move {
+    constructor(playerID, cellID, action) {
+        this.playerID = playerID;
+        this.cellID = cellID;
+        this.action = action;
+    }
+}
+Move.ACTIONS = {
+    COLONIZE : 44,
+    ANTIBIOTIC : 55
+};
 
 /**
  * Board holds its players and cells.
@@ -222,6 +237,14 @@ class Board {
         return true;
     }
     /**
+     * Performs all moves on the board, considering the rules.
+     * NOTE: do not call this function until all moves have been submitted.
+     * @param {Array<Move>} moves
+     */
+    performMoves(moves) {
+        // TODO
+    }
+    /**
      * Modifies this Board into combination of this and the array of boards.
      * Returns this.
      * @param {Array<Board>} boards 
@@ -247,7 +270,9 @@ class Board {
             // Handle normal cases
             else {
                 let occupiedUsers = occupations.filter(x => (x != BoardState.NO_USER));
-                assert(occupiedUsers.length <= 1, 'Fatal error: Issue calculating cell occupation.');
+                if (occupiedUsers.length > 1) {
+                    console.log('Fatal error: Issue calculating cell occupation.');
+                }
                 if (occupiedUsers.length == 1) {
                     this.cells[i].occupation = occupiedUsers[0];
                 }

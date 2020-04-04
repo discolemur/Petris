@@ -1,55 +1,199 @@
-html, body, #Main, #Wrapper {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+html,
+body,
+#Main,
+#Wrapper {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
 }
-#Welcome, #Room {
-    height: 100%;
-    width: 100%;
+#Welcome,
+#Room {
+  height: 100%;
+  width: 100%;
 }
 .column {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 #Board {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+}
+.textItem {
+  background-color: white;
+  border: #718EA4;
+  border-style: solid;
+  border-width: 0.25em;
+  color: #123652;
+  min-width: 8em;
+  max-width: 100%;
 }
 .columnItem {
-    border: #718EA4;
-    border-style: solid;
-    border-width: 0.25em;
-    background-color: white;
-    color: #123652;
-    font-size: 2em;
-    padding: 15px 32px;
-    margin-right: auto;
-    margin-left: auto;
-    text-align: center;
-    text-decoration: none;
-    transition-duration: 0.4s;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10+ and Edge */
-    user-select: none; /* Standard syntax */
-    min-width: 8em;
-    max-width: 100%;
+  font-size: 2em;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 0.25em;
+  text-align: center;
+  text-decoration: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
 }
 .btn {
-    background-color: #496D89;
-    color: white;
+  background-color: #496D89;
+  color: white;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
+  transition-duration: 0.4s;
 }
-.btn:hover, input {
-    background-color: white;
-    color: #123652;
+.btn:hover,
+input {
+  background-color: white;
+  color: #123652;
 }
 .columnItem {
-    color: #123652;
+  color: #123652;
 }
 .noBorder {
-    border: none;
+  border: none;
+}
+
+/* Hexagon (200px) taken from https://csshexagon.com/  Thank you so much! */
+.hexagon,.hexagon:before,.hexagon:after,
+.hexTop,.hexTop:before,.hexTop:after,
+.hexBottom,.hexBottom:before,.hexBottom:after {
+  box-sizing:border-box;
+}
+.hexagon {
+  position: relative;
+  width: 200px; 
+  height: 115.47px;
+  margin: 57.74px auto;
+  background-size: auto 219.3931px;
+  background-position: center;
+  border-left: solid 5px #718EA4;
+  border-right: solid 5px #718EA4;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.hexTop,
+.hexBottom {
+  position: absolute;
+  width: 141.42px;
+  height: 141.42px;
+  overflow: hidden;
+  -webkit-transform: scaleY(0.5774) rotate(-45deg);
+  -ms-transform: scaleY(0.5774) rotate(-45deg);
+  transform: scaleY(0.5774) rotate(-45deg);
+  background: inherit;
+  left: 24.29px;
+}
+
+/*counter transform the bg image on the caps*/
+.hexTop:after,
+.hexBottom:after {
+  content: "";
+  position: absolute;
+  width: 190.0000px;
+  height: 109.69655114602891px;
+  -webkit-transform:  rotate(45deg) scaleY(1.7321) translateY(-54.8483px);
+  -ms-transform:      rotate(45deg) scaleY(1.7321) translateY(-54.8483px);
+  transform:          rotate(45deg) scaleY(1.7321) translateY(-54.8483px);
+  -webkit-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  transform-origin: 0 0;
+  /* background: inherit; */
+}
+
+.hexTop {
+  top: -70.7107px;
+  border-top: solid 7.0711px #718EA4;
+  border-right: solid 7.0711px #718EA4;
+}
+
+.hexTop:after {
+  background-position: center top;
+}
+
+.hexBottom {
+  bottom: -70.7107px;
+  border-bottom: solid 7.0711px #718EA4;
+  border-left: solid 7.0711px #718EA4;
+}
+
+.hexBottom:after {
+  background-position: center bottom;
+}
+
+.hexagon:after {
+  content: "";
+  position: absolute;
+  top: 2.8868px;
+  left: 0;
+  width: 190.0000px;
+  height: 109.6966px;
+  /* background: inherit; */
+}
+
+.hexagon span {
+  font-size: 2em;
+  width: 100%;
+  display: block;
+  text-align: center;
+  position: relative;
+}
+
+/* From a jsfiddle by Gabriele Petrioli http://jsfiddle.net/gaby/9Ryvs/7/ */
+.spinner {
+  margin: 0 auto;
+
+  -webkit-animation-name: spin;
+  -webkit-animation-duration: 4000ms;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -moz-animation-name: spin;
+  -moz-animation-duration: 4000ms;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-timing-function: linear;
+  -ms-animation-name: spin;
+  -ms-animation-duration: 4000ms;
+  -ms-animation-iteration-count: infinite;
+  -ms-animation-timing-function: linear;
+  
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+@-ms-keyframes spin {
+  from { -ms-transform: rotate(0deg); }
+  to { -ms-transform: rotate(360deg); }
+}
+@-moz-keyframes spin {
+  from { -moz-transform: rotate(0deg); }
+  to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+  from {
+      transform:rotate(0deg);
+  }
+  to {
+      transform:rotate(360deg);
+  }
+}
+
+.errormsg {
+  color: red;
 }
