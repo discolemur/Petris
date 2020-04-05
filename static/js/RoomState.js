@@ -57,6 +57,7 @@ class RoomState {
     this.connectionMessage = null;
     this.playerID = uuidv4();
     this.onlyTesting = false;
+    this.currentMove = null;
   }
   reset() {
     this.players = [];
@@ -66,6 +67,7 @@ class RoomState {
     this.isCreator = false;
     this.joined = false;
     this.connectionMessage = null;
+    this.currentMove = null;
     return this;
   }
   dummyTest() {
@@ -148,6 +150,26 @@ class RoomState {
   }
   setConnectionMessage(msg) {
     this.connectionMessage = msg;
+    return this;
+  }
+  setCurrentMove(move) {
+    this.currentMove = move;
+    return this;
+  }
+  colonize(cell) {
+    this.currentMove.colonize(cell);
+    return this;
+  }
+  removeColony(cell) {
+    this.currentMove.removeColony(cell);
+    return this;
+  }
+  setAntibiotic(cell) {
+    this.currentMove.setAntibiotic(cell);
+    return this;
+  }
+  removeAntibiotic(cell) {
+    this.currentMove.removeAntibiotic(cell);
     return this;
   }
   setLatestPing(pID) {

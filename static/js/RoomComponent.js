@@ -80,10 +80,6 @@ class RoomComponent extends Component {
     if (this.state.roomState.players.length > 1 && this.state.startFailed) {
       this.setState({ startFailed: false });
     }
-    let buttonWidth = 200;
-    let buttonBorderWidth = 5;
-    let cellColor = '#496D89';
-    let borderColor = '#718EA4';
     return (
       h('div', { id: 'Room' },
         h('div', { class: 'column' },
@@ -91,7 +87,7 @@ class RoomComponent extends Component {
           h('div', { class: 'columnItem textItem noBorder' }, 'Players'),
           this.state.startFailed ? h('div', { class: 'columnItem textItem noBorder errormsg' }, 'To start, your room needs at least two people.') : null,
           this.playerList(),
-          this.state.roomState.isCreator ? hexagonButton('Start Game', buttonWidth, buttonBorderWidth, cellColor, borderColor, this.start)
+          this.state.roomState.isCreator ? defaultButton('Start Game', this.start)
             : h('div', { class: 'columnItem' }, 'Waiting for the host to start the game.')
         )
       )

@@ -8,13 +8,12 @@ function verbosePrint(msg) {
 }
 
 /**
- * BoardState gives global variables important to the state of the board. 
+ * CellState gives global variables important to the state of the board. 
  */
-var BoardState = {
+var CellState = {
     NO_USER: -1,
     ANTIBIOTIC: -2,
     COMPETITION: -3,
-    POSSIBLE_PLAYERS: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 };
 
 /**
@@ -33,7 +32,7 @@ class Cell {
         this.id = id;
         this.center = null;
         this.neighbors = [null, null, null, null, null, null];
-        this.occupation = BoardState.NO_USER;
+        this.occupation = CellState.NO_USER;
         this.wasProtected = false;
     }
     /**
@@ -107,15 +106,38 @@ class Cell {
 }
 
 /**
- * Move holds playerID, colonize (tuple), and antibiotic.
+ * Move holds playerID, colonies (array of colonies to add), and antibiotic.
  */
 class Move {
-    constructor(playerID, colonize, antibiotic) {
+    constructor(playerID) {
         this.playerID = playerID;
-        this.colonize = colonize;
-        this.antibiotic = antibiotic;
+        this.colonies = [];
+        this.antibiotic = null;
+    }
+    colonize(cell) {
+        if (this.colonies.length == Move.MAX_COLONIZATIONS) {
+            return false;
+        }
+        this.colonies.push(cell.id);
+        return true;
+    }
+    setAntibiotic(cell) {
+        if (this.antibiotic !== null) {
+            return false;
+        }
+        this.antibiotic = cell.id;
+        return true;
+    }
+    removeAntibiotic(cell) {
+        if (this.antibiotic == cell.id) {
+            this.antibiotic = null;
+        }
+    }
+    removeColony(cell) {
+        this.colonies = this.colonies.filter(x=>x!=cell.id);
     }
 }
+Move.MAX_COLONIZATIONS = 2;
 
 /**
  * Board holds its players and cells.
@@ -123,8 +145,8 @@ class Move {
  * It can calculate the current scores.
  */
 class Board {
-    constructor(numPlayers) {
-        this.players = BoardState.POSSIBLE_PLAYERS.slice(0, numPlayers);
+    constructor(players) {
+        this.players = players;
         this.cells = [];
         this.makeCells();
     }
@@ -289,7 +311,7 @@ class Board {
                     this.cells[cellID].wasProtected = true;
                 } else if (enemyColonizations.indexOf(cellID) >= 0) {
                     // Handle competitions
-                    this.cells[cellID].occupation = BoardState.COMPETITION;
+                    this.cells[cellID].occupation = CellState.COMPETITION;
                 } else {
                     this.cells[cellID].occupation = move.playerID;
                 }
@@ -308,20 +330,20 @@ class Board {
             // This is an array of only unique occupation values at this cell.
             let occupations = Array.from(new Set(boards.map(b => b.cells[i].occupation)));
             // Handle antibiotics
-            if (occupations.indexOf(BoardState.ANTIBIOTIC) != -1) {
-                this.cells[i].occupation = BoardState.ANTIBIOTIC;
+            if (occupations.indexOf(CellState.ANTIBIOTIC) != -1) {
+                this.cells[i].occupation = CellState.ANTIBIOTIC;
             }
             // Handle competitions
             else if (occupations.filter(x => (
-                x != BoardState.NO_USER &&
-                x != BoardState.ANTIBIOTIC &&
-                x != BoardState.COMPETITION
-            )).length > 1 || occupations.indexOf(BoardState.COMPETITION) != -1) {
-                this.cells[i].occupation = BoardState.COMPETITION;
+                x != CellState.NO_USER &&
+                x != CellState.ANTIBIOTIC &&
+                x != CellState.COMPETITION
+            )).length > 1 || occupations.indexOf(CellState.COMPETITION) != -1) {
+                this.cells[i].occupation = CellState.COMPETITION;
             }
             // Handle normal cases
             else {
-                let occupiedUsers = occupations.filter(x => (x != BoardState.NO_USER));
+                let occupiedUsers = occupations.filter(x => (x != CellState.NO_USER));
                 if (occupiedUsers.length > 1) {
                     console.log('Fatal error: Issue calculating cell occupation.');
                 }
@@ -338,8 +360,8 @@ class Board {
     getScores() {
         let scores = {};
         for (let player of this.players) {
-            scores[player] = this.cells
-                .filter(c => c.occupation == player)
+            scores[player.playerID] = this.cells
+                .filter(c => c.occupation == player.playerID)
                 .map(c => c.getNumberOfAdjacentHigherIDConnections())
                 .reduce((a, b) => a + b, 0);
         }
@@ -350,8 +372,8 @@ class Board {
      */
     prepareForColonization() {
         for (let cell of this.cells) {
-            if (cell.occupation == BoardState.ANTIBIOTIC) {
-                cell.occupation = BoardState.NO_USER;
+            if (cell.occupation == CellState.ANTIBIOTIC) {
+                cell.occupation = CellState.NO_USER;
             }
         }
     }

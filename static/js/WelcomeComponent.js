@@ -132,21 +132,13 @@ class WelcomeComponent extends Component {
       : h('div', { class: 'columnItem textItem noBorder errormsg' }, this.state.roomState.connectionMessage);
   }
   options() {
-    let buttonWidth = 200;
-    let buttonBorderWidth = 5;
-    let cellColor = '#496D89';
-    let borderColor = '#718EA4';
     return h('div', { class: 'column', margin: 'auto' },
-      hexagonButton('Create Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.setOption('create')),
+      defaultButton('Create Room', () => this.setOption('create')),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      hexagonButton('Join Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.setOption('join'))
+      defaultButton('Join Room', () => this.setOption('join'))
     )
   }
   create() {
-    let buttonWidth = 200;
-    let buttonBorderWidth = 5;
-    let cellColor = '#496D89';
-    let borderColor = '#718EA4';
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),
       h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
@@ -158,15 +150,11 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        hexagonButton('Create Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.connectToRoom(true))
+        defaultButton('Create Room', () => this.connectToRoom(true))
       )
     )
   }
   join() {
-    let buttonWidth = 200;
-    let buttonBorderWidth = 5;
-    let cellColor = '#496D89';
-    let borderColor = '#718EA4';
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),
       h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
@@ -178,7 +166,7 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        hexagonButton('Join Room', buttonWidth, buttonBorderWidth, cellColor, borderColor, () => this.connectToRoom(false))
+        defaultButton('Join Room', () => this.connectToRoom(false))
       )
     )
   }

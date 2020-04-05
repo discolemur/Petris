@@ -1,3 +1,5 @@
+"use strict";
+
 class GamePlayComponent extends Component {
   constructor(props) {
     super(props);

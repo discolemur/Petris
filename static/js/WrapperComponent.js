@@ -6,17 +6,21 @@ function banner(roomState) {
   let scoreboard = null;
   if (roomState.started) {
     let playerData = roomState.players.map(p => {
-      console.log(p);
-      let fontSize = 15;
-      let width = 40;
-      let borderWidth = 3;
-      return h('span', {}, `${p.playerName}`,
-        hexagon(p.score, fontSize, width, borderWidth, 'white', p.color) // TODO put hexagon to the right of name
+      let hexagonProps = HexagonProps();
+      hexagonProps.position = 'relative';
+      hexagonProps.text = p.score;
+      hexagonProps.cellWidth = 40;
+      hexagonProps.fontSize = 15;
+      hexagonProps.borderWidth = 3;
+      hexagonProps.borderColor = p.color;
+      hexagonProps.cellBGColor = 'white';
+      return h('div', { class: 'playerScore' },
+        h(Hexagon, { styleParams: hexagonProps }),
+        h('span', { style: { marginLeft: '10px' } }, `${p.playerName}`)
       )
     });
     scoreboard = h('div', { id: 'BannerScores' }, playerData);
   }
-  console.log(roomState)
   return h('div', { id: 'Banner' },
     h('div', { id: 'BannerContents' },
       h('span', { style: { height: '100%', minWidth: '30%' } }, 'Petris'),
