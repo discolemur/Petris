@@ -5,17 +5,30 @@ class GamePlayComponent extends Component {
     super(props);
     this.messageCallback = this.messageCallback.bind(this);
     this.nextTurn = this.nextTurn.bind(this);
+    this.endTurn = this.endTurn.bind(this);
+    this.updateTrigger = () => this.setState({});
     this.movingOn = props.movingOn;
     this.setState({ roomState: props.roomState });
     this.communicator = props.communicator;
     this.communicator.setMessageCallback(this.messageCallback);
   }
   nextTurn() {
-    // TODO
-    this.setState({ roomState: this.state.roomState.setCurrentMove(new Move(this.state.roomState.playerID)) })
+    this.setState({ roomState: this.state.roomState.performMoves() })
+    this.movingOn(this.state.roomState);
+  }
+  endTurn() {
+    this.setState({ roomState: this.state.roomState.freezeMove() })
+    if (TESTING) {
+      this.nextTurn();
+    }
+    this.movingOn(this.state.roomState);
   }
   pingForPlayers() {
-    this.communicator.sendObject({ ping: true });
+    let obj = { ping: true };
+    if (this.roomState.isFrozen()) {
+      obj.move = this.roomState.currentMove;
+    }
+    this.communicator.sendObject(obj);
     setTimeout(() => {
       if (!this.state.roomState.started) {
         this.pingForPlayers();
@@ -26,15 +39,28 @@ class GamePlayComponent extends Component {
     this.state.roomState.setLatestPing(msg.playerID);
     // TODO: Vote to drop unresponsive player...
   }
+  endTurnButton(availableMove) {
+    let enabled = false;
+    let text = 'End Turn';
+    if (this.state.roomState.isFrozen()) {
+      text = 'Waiting for everyone to finish.'
+    }
+    if (availableMove == Move.GAME_OVER) {
+      text = 'Game Over!';
+    }
+    if (availableMove == Move.NO_MOVE && availableMove != Move.GAME_OVER) {
+      enabled = true;
+    }
+    return h('div', { style: { marginTop: '22px' } }, defaultButton(text, this.endTurn, enabled));
+  }
   render(props, state) {
     let availableMove = null;
-    if (this.state.roomState.currentMove) {
-      availableMove = this.state.roomState.currentMove.availableMove();
-      // TODO need to update as move is updated!
+    if (state.roomState.currentMove) {
+      availableMove = state.roomState.availableMove();
     }
-    return h('div', {},
-      h(BoardComponent, { roomState: this.state.roomState }),
-      availableMove === Move.NO_MOVE ? defaultButton('End Move', this.nextTurn) : null
+    return h('div', { id: 'GamePlayWrapper' },
+      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger }),
+      this.endTurnButton(availableMove)
     )
   }
 }

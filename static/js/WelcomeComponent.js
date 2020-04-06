@@ -133,9 +133,9 @@ class WelcomeComponent extends Component {
   }
   options() {
     return h('div', { class: 'column', margin: 'auto' },
-      defaultButton('Create Room', () => this.setOption('create')),
+      defaultButton('Create Room', () => this.setOption('create'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      defaultButton('Join Room', () => this.setOption('join'))
+      defaultButton('Join Room', () => this.setOption('join'), true)
     )
   }
   create() {
@@ -150,7 +150,7 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        defaultButton('Create Room', () => this.connectToRoom(true))
+        defaultButton('Create Room', () => this.connectToRoom(true), true)
       )
     )
   }
@@ -166,7 +166,7 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        defaultButton('Join Room', () => this.connectToRoom(false))
+        defaultButton('Join Room', () => this.connectToRoom(false), true)
       )
     )
   }

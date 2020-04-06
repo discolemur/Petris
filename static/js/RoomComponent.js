@@ -87,7 +87,7 @@ class RoomComponent extends Component {
           h('div', { class: 'columnItem textItem noBorder' }, 'Players'),
           this.state.startFailed ? h('div', { class: 'columnItem textItem noBorder errormsg' }, 'To start, your room needs at least two people.') : null,
           this.playerList(),
-          this.state.roomState.isCreator ? defaultButton('Start Game', this.start)
+          this.state.roomState.isCreator ? defaultButton('Start Game', this.start, true)
             : h('div', { class: 'columnItem' }, 'Waiting for the host to start the game.')
         )
       )

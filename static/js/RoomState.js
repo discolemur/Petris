@@ -9,46 +9,10 @@ function uuidv4() {
   );
 }
 
-/**
- * Player has the following attributes:
- * playerID
- * playerName
- * color
- * score
- * latestPing
- */
-class Player {
-  constructor(playerID, playerName) {
-    this.playerID = playerID;
-    this.playerName = playerName;
-    this.color = Player.NO_COLOR;
-    this.score = 0;
-    this.latestPing = new Date().getTime();
-  }
-}
-Player.NO_COLOR = '#AAAAAA';
-Player.COLOR_LIST = [
-  '#18305A',
-  '#874719',
-  '#828619',
-  '#817ABF',
-  '#10554C',
-  '#876019',
-  '#45145A',
-  '#597D17',
-  '#6E96B4',
-  '#6F1543'
-]
-Player.PING_TIMEOUT = 10 * 1000; // 10 seconds
-Player.PING_FREQUENCY = 3 * 1000; // 3 seconds
-
-var EMPTY_CELL_COLOR = '#C2B790';
-var COMPENTITION_CELL_COLOR = '#444444';
-var ANTIBIOTIC_CELL_COLOR = '#97F365';
-
 class RoomState {
   constructor() {
     this.players = [];
+    this.opponentMoves = {};
     this.playerName = null;
     this.roomName = null;
     this.started = false;
@@ -58,6 +22,7 @@ class RoomState {
     this.playerID = uuidv4();
     this.onlyTesting = false;
     this.currentMove = null;
+    this.board = null;
   }
   reset() {
     this.players = [];
@@ -68,6 +33,7 @@ class RoomState {
     this.joined = false;
     this.connectionMessage = null;
     this.currentMove = null;
+    this.board = null;
     return this;
   }
   dummyTest() {
@@ -152,8 +118,26 @@ class RoomState {
     this.connectionMessage = msg;
     return this;
   }
+  newBoard() {
+    this.board = new Board();
+    this.clearMoves();
+    return this;
+  }
   setCurrentMove(move) {
     this.currentMove = move;
+    return this;
+  }
+  performMoves() {
+    let moves = this.opponentMoves;
+    moves[this.playerID] = this.currentMove;
+    this.board.performMoves(Object.values(moves));
+    this.board.setScores(this.players);
+    this.clearMoves();
+    return this;
+  }
+  clearMoves() {
+    this.opponentMoves = {};
+    this.currentMove = new Move(this.playerID);
     return this;
   }
   addColony(cell) {
@@ -172,6 +156,28 @@ class RoomState {
     this.currentMove.removeAntibiotic(cell);
     return this;
   }
+  availableMove() {
+    let am = this.currentMove.availableMove();
+    let emptyCells = this.board.getCells().filter(c=>c.occupation == CellState.NO_USER);
+    if (emptyCells.length == 0
+      || emptyCells.filter(c=>this.currentMove.cellHasMove(c) == Move.NO_MOVE).length == 0) {
+      am = Move.NO_MOVE;
+    }
+    if (this.currentMove.isEmpty() && emptyCells.length == 0) {
+      am = Move.GAME_OVER;
+    }
+    return am;
+  }
+  freezeMove() {
+    this.currentMove.setFrozen();
+    return this;
+  }
+  isFrozen() {
+    if (this.currentMove !== null && this.currentMove.frozen) {
+      return true;
+    }
+    return false;
+  }
   setLatestPing(pID) {
     for (let player of this.players) {
       if (player.playerID === pID || player.playerID === this.playerID) {
@@ -189,4 +195,4 @@ class RoomState {
   }
 }
 
-RoomState.MAX_PLAYERS = 6;
+RoomState.MAX_PLAYERS = 10;

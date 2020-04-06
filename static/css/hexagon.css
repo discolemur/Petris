@@ -9,7 +9,13 @@
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10+ and Edge */
   user-select: none; /* Standard syntax */
-  transition-duration: 0.4s;
+  -webkit-transition: color,background-color 0.3s linear;
+  -ms-transition: color,background-color 0.3s linear;
+  transition: color,background-color 0.3s linear;
+  /* -webkit-transition: color 0.3s linear;
+  -ms-transition: color 0.3s linear;
+  transition: color 0.3s linear; */
+
 }
 .hexTop,
 .hexBottom {

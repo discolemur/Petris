@@ -12,6 +12,7 @@ var HexagonProps = () => {
     borderColor: null,
     hoverColor: null,
     hoverBGColor: null,
+    hoverBorderColor: null,
     left: null,
     top: null,
     onClick: null,
@@ -42,6 +43,7 @@ class Hexagon extends Component {
     if (this.style.blinkBGColor !== null && this.blinkOn) {
       bgcolor = this.style.blinkBGColor;
     }
+    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
     return {
       backgroundColor: bgcolor,
       color: color,
@@ -51,8 +53,8 @@ class Hexagon extends Component {
       width: this.style.cellWidth,
       marginLeft: 'auto',
       marginRight: 'auto',
-      borderLeft: `solid ${this.style.borderWidth}px ${this.style.borderColor}`,
-      borderRight: `solid ${this.style.borderWidth}px ${this.style.borderColor}`,
+      borderLeft: `solid ${this.style.borderWidth}px ${bColor}`,
+      borderRight: `solid ${this.style.borderWidth}px ${bColor}`,
     }
   }
   _getTopBottomUnits() {
@@ -64,24 +66,26 @@ class Hexagon extends Component {
   }
   HEX_TOP_STYLE() {
     let basicUnits = this._getTopBottomUnits();
+    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
     return {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
       height: `${basicUnits.boxSide}px`,
       top: `-${basicUnits.offset}px`,
-      borderTop: `solid ${this.style.borderWidth * 1.414214}px ${this.style.borderColor}`,
-      borderRight: `solid ${this.style.borderWidth * 1.414214}px ${this.style.borderColor}`
+      borderTop: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`,
+      borderRight: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`
     }
   }
   HEX_BOTTOM_STYLE() {
     let basicUnits = this._getTopBottomUnits();
+    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
     return {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
       height: `${basicUnits.boxSide}px`,
       bottom: `-${basicUnits.offset}px`,
-      borderBottom: `solid ${this.style.borderWidth * 1.414214}px ${this.style.borderColor}`,
-      borderLeft: `solid ${this.style.borderWidth * 1.414214}px ${this.style.borderColor}`
+      borderBottom: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`,
+      borderLeft: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`
     }
   }
   componentDidMount() {
@@ -98,7 +102,7 @@ class Hexagon extends Component {
       if (this.blinking) {
         this.blinkUpdateTrigger();
       }
-    }, 500);
+    }, this.blinkOn ? 300 : 700);
     this.blinkOn = !this.blinkOn;
     this.setState({});
   }
@@ -145,17 +149,23 @@ class Hexagon extends Component {
   }
 }
 
-var defaultButton = (text, onClick) => {
+var defaultButton = (text, onClick, enabled) => {
   let props = HexagonProps();
   props.text = text;
-  props.onClick = onClick;
   props.cellWidth = 200;
   props.borderWidth = 5;
-  props.cellBGColor = '#496D89';
-  props.borderColor = '#718EA4';
-  props.hoverColor = '#123652';
-  props.hoverBGColor = 'white';
+  if (enabled) {
+    props.borderColor = '#718EA4';
+    props.cellBGColor = '#496D89';
+    props.hoverColor = '#123652';
+    props.hoverBGColor = 'white';
+    props.onClick = onClick;
+  } else {
+    props.borderColor = '#101010';
+    props.cellBGColor = '#4C4C4C';
+    props.onClick = ()=>{};
+  }
+  props.cellColor = '#FFFFFF'
   props.position = 'relative';
-  console.log(props);
   return h(Hexagon, { styleParams: props });
 }
