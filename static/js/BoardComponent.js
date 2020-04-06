@@ -10,9 +10,17 @@
  * @param {function} onClick 
  */
 var boardCell = (cell, currentMove, players, minX, minY, onClick) => {
+  // TODO break some logic into functions...
   let props = HexagonProps();
   props.borderColor = '#4C4C4C';
-  props.hoverBGColor = '#484848';
+  let availableMove = currentMove.availableMove();
+  let availableMoveColor = null; // '#484848'; // This gets distracting if set.
+  if (availableMove == Move.ANTIBIOTIC) {
+    availableMoveColor = ANTIBIOTIC_CELL_COLOR;
+  } else if (availableMove == Move.COLONY) {
+    availableMoveColor = players.filter(p => p.playerID == currentMove.playerID)[0].color;
+  }
+  props.hoverBGColor = availableMoveColor;
   props.onClick = onClick;
   props.text = cell.id;
   props.left = cell.center[0] - minX;
@@ -32,9 +40,9 @@ var boardCell = (cell, currentMove, players, minX, minY, onClick) => {
   }
   if (currentMove !== null) {
     if (currentMove.colonies.indexOf(cell.id) >= 0) {
-      props.borderColor = players.filter(p => p.playerID === currentMove.playerID)[0].color;
+      props.blinkBGColor = players.filter(p => p.playerID === currentMove.playerID)[0].color;
     } else if (currentMove.antibiotic === cell.id) {
-      props.borderColor = ANTIBIOTIC_CELL_COLOR;
+      props.blinkBGColor = ANTIBIOTIC_CELL_COLOR;
     }
   }
   return h(Hexagon, { styleParams: props });
@@ -43,7 +51,6 @@ var boardCell = (cell, currentMove, players, minX, minY, onClick) => {
 class BoardComponent extends Component {
   constructor(props) {
     super(props);
-    this.nextTurn = this.nextTurn.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
     this.displayCell = this.displayCell.bind(this);
     this.setState({
@@ -51,9 +58,7 @@ class BoardComponent extends Component {
       board: new Board(props.roomState.players.length)
     });
   }
-  nextTurn() {
-    this.setState({ roomState: props.roomState.setCurrentMove(new Move(props.roomState.playerID)) })
-  }
+
   componentDidMount() {
     window.addEventListener('scroll', this.handleScroll, true);
   }
@@ -70,10 +75,22 @@ class BoardComponent extends Component {
    */
   displayCell(cell, minX, minY) {
     return boardCell(cell, this.state.roomState.currentMove, this.state.roomState.players, minX, minY, () => {
-      console.log(`Clicked on cell ${cell.id}`);
-      if (cell.occupation === CellState.NO_USER) {
-        this.setState({ roomState: this.state.roomState.colonize(cell) });
+      if (cell.occupation !== CellState.NO_USER) {
+        return;
       }
+      let currentMove = this.state.roomState.currentMove;
+      let cellsMove = currentMove.cellHasMove(cell);
+      let availableMove = this.state.roomState.currentMove.availableMove();
+      if (cellsMove == Move.ANTIBIOTIC) {
+        currentMove.removeAntibiotic(cell);
+      } else if (cellsMove == Move.COLONY) {
+        currentMove.removeColony(cell);
+      } else if (availableMove == Move.COLONY) {
+        currentMove.addColony(cell);
+      } else if (availableMove == Move.ANTIBIOTIC) {
+        currentMove.addAntibiotic(cell);
+      }
+      this.setState({ roomState: this.state.roomState.setCurrentMove(currentMove) });
     });
   }
   render(props, state) {

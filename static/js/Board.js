@@ -114,14 +114,35 @@ class Move {
         this.colonies = [];
         this.antibiotic = null;
     }
-    colonize(cell) {
+    availableMove() {
+        if (this.colonies.length < Move.MAX_COLONIZATIONS) {
+            return Move.COLONY;
+        }
+        if (this.antibiotic === null) {
+            return Move.ANTIBIOTIC;
+        }
+        return null;
+    }
+    availableMoveColor() {
+        let available = this.availableMove();
+        
+    }
+    cellHasMove(cell) {
+        if (this.colonies.indexOf(cell.id) >= 0) {
+            return Move.COLONY;
+        } else if (this.antibiotic == cell.id) {
+            return Move.ANTIBIOTIC;
+        }
+        return Move.NO_MOVE;
+    }
+    addColony(cell) {
         if (this.colonies.length == Move.MAX_COLONIZATIONS) {
             return false;
         }
         this.colonies.push(cell.id);
         return true;
     }
-    setAntibiotic(cell) {
+    addAntibiotic(cell) {
         if (this.antibiotic !== null) {
             return false;
         }
@@ -138,6 +159,9 @@ class Move {
     }
 }
 Move.MAX_COLONIZATIONS = 2;
+Move.COLONY = 10;
+Move.ANTIBIOTIC = 20;
+Move.NO_MOVE = false;
 
 /**
  * Board holds its players and cells.
@@ -304,8 +328,8 @@ class Board {
         allMoves = allMoves.map(m=>Object.setPrototypeOf(m, Move.prototype))
         let antibiotics = allMoves.map(m=>m.antibiotic);
         for (let move of allMoves) {
-            let enemyColonizations = allMoves.filter(m=>m.playerID != move.playerID).map(m=>m.colonize).flat();
-            for (let cellID of move.colonize) {
+            let enemyColonizations = allMoves.filter(m=>m.playerID != move.playerID).map(m=>m.colonies).flat();
+            for (let cellID of move.colonies) {
                 if (antibiotics.indexOf(cellID) >= 0) {
                     // Handle antibiotics TODO: maybe show all antibiotics used? Or just the ones that were effective?
                     this.cells[cellID].wasProtected = true;

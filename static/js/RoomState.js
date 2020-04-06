@@ -156,16 +156,16 @@ class RoomState {
     this.currentMove = move;
     return this;
   }
-  colonize(cell) {
-    this.currentMove.colonize(cell);
+  addColony(cell) {
+    this.currentMove.addColony(cell);
     return this;
   }
   removeColony(cell) {
     this.currentMove.removeColony(cell);
     return this;
   }
-  setAntibiotic(cell) {
-    this.currentMove.setAntibiotic(cell);
+  addAntibiotic(cell) {
+    this.currentMove.addAntibiotic(cell);
     return this;
   }
   removeAntibiotic(cell) {

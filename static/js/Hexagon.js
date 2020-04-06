@@ -8,6 +8,7 @@ var HexagonProps = () => {
     borderWidth: null,
     cellBGColor: null,
     cellColor: '#000000',
+    blinkBGColor: null,
     borderColor: null,
     hoverColor: null,
     hoverBGColor: null,
@@ -26,8 +27,11 @@ class Hexagon extends Component {
     this._getTopBottomUnits = this._getTopBottomUnits.bind(this);
     this.HEX_TOP_STYLE = this.HEX_TOP_STYLE.bind(this);
     this.HEX_BOTTOM_STYLE = this.HEX_BOTTOM_STYLE.bind(this);
+    this.blinkUpdateTrigger = this.blinkUpdateTrigger.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.blinkOn = true;
+    this.blinking = false;
     this.setState({ hover: false });
   }
   HEX_STYLE() {
@@ -35,6 +39,9 @@ class Hexagon extends Component {
     let margin = 0.288675135 * this.style.cellWidth;
     let bgcolor = (this.state.hover && this.style.hoverBGColor !== null) ? this.style.hoverBGColor : this.style.cellBGColor;
     let color = (this.state.hover && this.style.hoverColor !== null) ? this.style.hoverColor : this.style.cellColor;
+    if (this.style.blinkBGColor !== null && this.blinkOn) {
+      bgcolor = this.style.blinkBGColor;
+    }
     return {
       backgroundColor: bgcolor,
       color: color,
@@ -85,6 +92,16 @@ class Hexagon extends Component {
     document.removeEventListener('mouseenter', this.onMouseEnter, true);
     document.removeEventListener('mouseleave', this.onMouseLeave, true);
   }
+  blinkUpdateTrigger() {
+    this.blinking = true;
+    setTimeout(() => {
+      if (this.blinking) {
+        this.blinkUpdateTrigger();
+      }
+    }, 500);
+    this.blinkOn = !this.blinkOn;
+    this.setState({});
+  }
   onMouseEnter(e) {
     if (e.target.id === this.HEX_ID) {
       this.setState({ hover: true });
@@ -97,6 +114,13 @@ class Hexagon extends Component {
   }
   render(props, state) {
     this.style = props.styleParams;
+    if (this.style.blinkBGColor !== null && !this.blinking) {
+      this.blinking = true;
+      this.blinkUpdateTrigger();
+    }
+    if (!this.style.blinkBGColor) {
+      this.blinking = false;
+    }
     let left = this.style.left * this.style.cellWidth;
     let top = this.style.top * this.style.cellWidth;
     let classes = this.style.flatTop ? 'hexCell rotateHex' : 'hexCell';

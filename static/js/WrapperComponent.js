@@ -17,7 +17,7 @@ function banner(roomState) {
       return h('div', { class: 'playerScore' },
         h(Hexagon, { styleParams: hexagonProps }),
         h('span', { style: { marginLeft: '10px' } }, `${p.playerName}`)
-      )
+      );
     });
     scoreboard = h('div', { id: 'BannerScores' }, playerData);
   }
