@@ -1,22 +1,17 @@
 "use strict";
 
-var TESTING = false;
-
 class WrapperComponent extends Component {
   constructor(props) {
     super(props);
     this.movingOn = this.movingOn.bind(this);
     this.banner = this.banner.bind(this);
-    this.communicator = new Communicator();
     let roomState = new RoomState();
     if (TESTING) {
       roomState = roomState.dummyTest();
-      this.communicator = new CommunicatorDummy();
     }
     this.setState({ roomState: roomState });
   }
   movingOn(roomState) {
-    console.log('moved on')
     this.setState({ roomState: roomState });
   }
   banner() {
@@ -51,23 +46,19 @@ class WrapperComponent extends Component {
         this.banner(),
         TESTING ? h(GamePlayComponent, {
           movingOn: this.movingOn,
-          roomState: state.roomState,
-          communicator: this.communicator
+          roomState: state.roomState
         })
           : !state.roomState.joined ? h(WelcomeComponent, {
             movingOn: this.movingOn,
-            roomState: state.roomState,
-            communicator: this.communicator
+            roomState: state.roomState
           })
             : !state.roomState.started ? h(RoomComponent, {
               movingOn: this.movingOn,
-              roomState: state.roomState,
-              communicator: this.communicator
+              roomState: state.roomState
             })
               : h(GamePlayComponent, {
                 movingOn: this.movingOn,
-                roomState: state.roomState,
-                communicator: this.communicator
+                roomState: state.roomState
               })
       )
     )

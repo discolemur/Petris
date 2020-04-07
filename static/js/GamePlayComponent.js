@@ -11,10 +11,10 @@ class GamePlayComponent extends Component {
     this.endTurnButton = this.endTurnButton.bind(this);
     this.updateTrigger = () => this.setState({});
     this.movingOn = props.movingOn;
-    this.setState({ roomState: props.roomState });
-    this.communicator = props.communicator;
-    this.communicator.setMessageCallback(this.messageCallback);
-    this.communicator.setOnConnectionLost(this.onConnectionLost)
+    COMMUNICATOR.setMessageCallback(this.messageCallback);
+    COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
+    this.state.roomState = props.roomState;
+    this.pingForPlayers();
   }
   onConnectionLost() {
     console.log('Connection broke!');
@@ -37,7 +37,7 @@ class GamePlayComponent extends Component {
     if (this.state.roomState.isFrozen()) {
       obj.move = this.state.roomState.currentMove;
     }
-    this.communicator.sendObject(obj);
+    COMMUNICATOR.sendObject(obj);
     setTimeout(() => {
       if (this.state.roomState.isFrozen()) {
         this.pingForPlayers();
@@ -45,27 +45,30 @@ class GamePlayComponent extends Component {
     }, Player.PING_FREQUENCY);
   }
   messageCallback(msg) {
-    let roomState = this.state.roomState;
-    // Connection is still good at this point.
     if (msg.move) {
-      this.setState({ roomState: roomState.setLatestPing(msg.playerID).logMoveProceedIfFull(move, this.nextTurn) });
+      this.setState({
+        roomState: this.state.roomState.setLatestPing(msg.playerID).logMove(msg.move)
+      });
     }
   }
   endTurnButton() {
-    console.log(this.state.roomState);
     let availableMove = this.state.roomState.getAvailableMove();
     let enabled = false;
-    let text = 'End Turn';
+    let text = 'Select Cells';
     if (availableMove == Move.GAME_OVER) {
       text = 'Game Over!';
     } else if (this.state.roomState.isFrozen()) {
       text = 'Waiting for everyone to finish.'
     } else if (availableMove == Move.NO_MOVE && availableMove != Move.GAME_OVER) {
+      text = 'End Turn';
       enabled = true;
     }
     return h('div', { style: { marginTop: '22px' } }, defaultButton(text, this.endTurn, enabled));
   }
   render(props, state) {
+    if (state.roomState.isReadyForNextTurn()) {
+      this.nextTurn();
+    }
     return h('div', { id: 'GamePlayWrapper' },
       h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger }),
       this.endTurnButton()

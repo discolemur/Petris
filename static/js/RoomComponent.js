@@ -10,8 +10,7 @@ class RoomComponent extends Component {
     this.start = this.start.bind(this);
     this.messageCallback = this.messageCallback.bind(this);
     this.playerList = this.playerList.bind(this);
-    this.communicator = props.communicator;
-    this.communicator.setMessageCallback(this.messageCallback);
+    COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.movingOn = props.movingOn;
     if (props.roomState.isCreator) {
       this.pingForPlayers();
@@ -24,7 +23,7 @@ class RoomComponent extends Component {
         this.pingForPlayers();
       }
     }, Player.PING_FREQUENCY);
-    this.communicator.sendObject({ ping: true });
+    COMMUNICATOR.sendObject({ ping: true });
   }
   start() {
     if (this.state.roomState.players.length < 2) {
@@ -33,7 +32,7 @@ class RoomComponent extends Component {
     }
     let roomState = this.state.roomState.setStarted(true);
     if (this.state.roomState.isCreator) {
-      this.communicator.sendObject({ started: true });
+      COMMUNICATOR.sendObject({ started: true });
     }
     this.setState({ roomState: roomState });
     this.movingOn(roomState);
@@ -44,7 +43,7 @@ class RoomComponent extends Component {
       roomState.setLatestPing(msg.playerID);
       this.setState({ roomState: roomState });
       if (this.state.roomState.isCreator) {
-        this.communicator.sendObject({ allPlayers: this.state.roomState.players });
+        COMMUNICATOR.sendObject({ allPlayers: this.state.roomState.players });
       }
     }
     if (msg.playerID === this.state.roomState.playerID) {
@@ -53,13 +52,13 @@ class RoomComponent extends Component {
     if (msg.requestToJoin
       && this.state.roomState.isCreator
       && this.state.roomState.players.length < RoomState.MAX_PLAYERS) {
-      this.communicator.sendObject({ canJoin: true });
+        COMMUNICATOR.sendObject({ canJoin: true });
     }
     if (msg.joined && this.state.roomState.isCreator) {
       let player = msg.player;
       if (this.state.roomState.players.indexOf(player.playerID) == -1) {
         this.setState({ roomState: this.state.roomState.addPlayer(player) });
-        this.communicator.sendObject({ allPlayers: this.state.roomState.players });
+        COMMUNICATOR.sendObject({ allPlayers: this.state.roomState.players });
       }
     }
     if (msg.allPlayers !== undefined) {

@@ -22,6 +22,7 @@ class RoomState {
     this.playerID = uuidv4();
     this.onlyTesting = false;
     this.currentMove = null;
+    this.turnNumber = 1;
     this.board = null;
   }
   reset() {
@@ -141,8 +142,23 @@ class RoomState {
   }
   clearMoves() {
     this.opponentMoves = {};
-    this.currentMove = new Move(this.playerID);
+    this.currentMove = new Move(this.playerID, this.turnNumber++);
     return this;
+  }
+    /**
+   * Logs an opponent's move, triggers if all moves are logged, then returns this.
+   * @param {Move} move
+   */
+  logMove(move) {
+    move = Object.setPrototypeOf(move, Move.prototype);
+    if (move.turnNumber == this.turnNumber) {
+      this.opponentMoves[move.playerID] = move;
+    }
+    return this;
+  }
+  isReadyForNextTurn() {
+    // TODO: some improper handling of turnNumber could cause other boards to log moves out of sync (too early) showing what another person's move is.
+    return (Object.keys(this.opponentMoves).length == this.players.length);
   }
   addColony(cell) {
     this.currentMove.addColony(cell);
@@ -158,20 +174,6 @@ class RoomState {
   }
   removeAntibiotic(cell) {
     this.currentMove.removeAntibiotic(cell);
-    return this;
-  }
-  /**
-   * Logs an opponent's move, triggers if all moves are logged, then returns this.
-   * @param {Move} move
-   * @param {function} nextTurnTrigger
-   */
-  logMoveProceedIfFull(move, nextTurnTrigger) {
-    this.opponentMoves[move.playerID] = move;
-    console.log(this.opponentMoves);
-    if (Object.keys(this.opponentMoves).length == this.players.length) {
-      console.log('Should go to next turn!');
-      nextTurnTrigger();
-    }
     return this;
   }
   getAvailableMove() {

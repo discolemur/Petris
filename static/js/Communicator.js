@@ -105,3 +105,8 @@ class CommunicatorDummy {
     sendObject(obj) {
     }
 }
+
+var COMMUNICATOR = new Communicator();
+if (TESTING) {
+    COMMUNICATOR = new CommunicatorDummy();
+}

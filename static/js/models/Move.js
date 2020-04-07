@@ -2,11 +2,12 @@
  * Move holds playerID, colonies (array of colonies to add), and antibiotic.
  */
 class Move {
-    constructor(playerID) {
+    constructor(playerID, turnNumber) {
         this.playerID = playerID;
         this.colonies = [];
         this.antibiotic = null;
         this.frozen = false;
+        this.turnNumber = turnNumber;
     }
     isEmpty() {
         return this.colonies.length == 0 && this.antibiotic === null;

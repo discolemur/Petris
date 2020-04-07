@@ -21,8 +21,7 @@ class WelcomeComponent extends Component {
     this.options = this.options.bind(this);
     this.create = this.create.bind(this);
     this.join = this.join.bind(this);
-    this.communicator = props.communicator;
-    this.communicator.setMessageCallback(this.messageCallback);
+    COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.setOption = (opt) => this.setState({ 'option': opt });
     this.movingOn = props.movingOn;
     this.setState({ option: null, checkingRoom: false, roomState: props.roomState });
@@ -66,7 +65,7 @@ class WelcomeComponent extends Component {
       this.setState({ roomState: roomState.setConnectionMessage('Please type your name and a room name.') });
       return;
     }
-    this.communicator.connect(
+    COMMUNICATOR.connect(
       roomState.roomName,
       roomState.playerID,
       this.onConnectToRoom,
@@ -77,17 +76,17 @@ class WelcomeComponent extends Component {
   }
   onConnectToRoom() {
     this.state.roomState.connectionMessage = null;
-    this.communicator.setOnConnectionLost(this.onConnectionLost);
+    COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
     if (this.state.roomState.isCreator) {
       this.canCreate = true;
-      this.communicator.sendObject({ ping: true });
+      COMMUNICATOR.sendObject({ ping: true });
       setTimeout(() => {
         this.createIfRoomEmpty();
         this.setState({ checkingRoom: false });
       }, 3000);
     } else {
       this.canJoin = false;
-      this.communicator.sendObject({ requestToJoin: true });
+      COMMUNICATOR.sendObject({ requestToJoin: true });
       setTimeout(() => {
         this.joinIfRoomNotActive();
         this.setState({ checkingRoom: false });
@@ -96,7 +95,7 @@ class WelcomeComponent extends Component {
   }
   joinIfRoomNotActive() {
     if (this.canJoin) {
-      this.communicator.sendObject({
+      COMMUNICATOR.sendObject({
         joined: true,
         player: new Player(this.state.roomState.playerID, this.state.roomState.playerName)
       });
