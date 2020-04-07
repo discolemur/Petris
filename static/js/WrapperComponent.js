@@ -1,6 +1,6 @@
 "use strict";
 
-var TESTING = true;
+var TESTING = false;
 
 class WrapperComponent extends Component {
   constructor(props) {

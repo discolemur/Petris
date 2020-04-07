@@ -33,7 +33,7 @@ class BoardComponent extends Component {
     // TODO break some logic into functions...
     let props = HexagonProps();
     props.borderColor = '#4C4C4C';
-    let availableMove = this.state.roomState.availableMove();
+    let availableMove = this.state.roomState.getAvailableMove();
     let availableMoveColor = null;
     if (currentMove.cellHasMove(cell) != Move.NO_MOVE) {
       availableMoveColor = '#484848';
@@ -83,7 +83,7 @@ class BoardComponent extends Component {
     }
     let currentMove = this.state.roomState.currentMove;
     let cellsMove = currentMove.cellHasMove(cell);
-    let availableMove = this.state.roomState.currentMove.availableMove();
+    let availableMove = this.state.roomState.currentMove.getAvailableMove();
     if (cellsMove == Move.ANTIBIOTIC) {
       currentMove.removeAntibiotic(cell);
     } else if (cellsMove == Move.COLONY) {

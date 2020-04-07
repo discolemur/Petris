@@ -83,7 +83,7 @@ class RoomState {
   setPlayers(plist) {
     plist = this._removeDuplicates(plist);
     plist = this._setColors(plist);
-    this.players = plist;
+    this.players = plist.map(p=>Object.setPrototypeOf(p, Player.prototype));
     return this;
   }
   addPlayer(player) {
@@ -127,13 +127,17 @@ class RoomState {
     this.currentMove = move;
     return this;
   }
-  performMoves() {
+  /**
+   * IMPORTANT: returns callback, not this.
+   * @param {function} callback 
+   */
+  performMoves(callback) {
     let moves = this.opponentMoves;
     moves[this.playerID] = this.currentMove;
     this.board.performMoves(Object.values(moves));
     this.board.setScores(this.players);
     this.clearMoves();
-    return this;
+    callback();
   }
   clearMoves() {
     this.opponentMoves = {};
@@ -156,8 +160,25 @@ class RoomState {
     this.currentMove.removeAntibiotic(cell);
     return this;
   }
-  availableMove() {
-    let am = this.currentMove.availableMove();
+  /**
+   * Logs an opponent's move, triggers if all moves are logged, then returns this.
+   * @param {Move} move
+   * @param {function} nextTurnTrigger
+   */
+  logMoveProceedIfFull(move, nextTurnTrigger) {
+    this.opponentMoves[move.playerID] = move;
+    console.log(this.opponentMoves);
+    if (Object.keys(this.opponentMoves).length == this.players.length) {
+      console.log('Should go to next turn!');
+      nextTurnTrigger();
+    }
+    return this;
+  }
+  getAvailableMove() {
+    if (this.currentMove === null) {
+      return Move.COLONY;
+    }
+    let am = this.currentMove.getAvailableMove();
     let emptyCells = this.board.getCells().filter(c=>c.occupation == CellState.NO_USER);
     if (emptyCells.length == 0
       || emptyCells.filter(c=>this.currentMove.cellHasMove(c) == Move.NO_MOVE).length == 0) {
@@ -170,6 +191,7 @@ class RoomState {
   }
   freezeMove() {
     this.currentMove.setFrozen();
+    this.opponentMoves[this.playerID] = this.currentMove;
     return this;
   }
   isFrozen() {
@@ -184,7 +206,7 @@ class RoomState {
         player.latestPing = new Date().getTime();
       }
     }
-    if (this.isCreator) {
+    if (this.isCreator && !this.started) {
       for (let p of this.players) {
         if (new Date().getTime() - p.latestPing > Player.PING_TIMEOUT) {
           this.dropPlayer(p.playerID);

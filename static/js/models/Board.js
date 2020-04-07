@@ -20,38 +20,42 @@ class Board {
     getCells() {
         return Object.values(this.cells);
     }
-    makeCells() {
-        // top_shape is the order of link positions from each cell n to its neighbor n+1 from the perspective of n.
-        const top_shape = [1, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1];
-        let id_counter = 1;
-        let top_width = top_shape.length + 1;
-        let num_rows = 7;
+    makeTopRow(topWidth) {
+        // I define the pattern as the order of link positions from each cell n to its neighbor n+1 from the perspective of n.
+        // The shape of the top row repeats [ 1, 1, 2, 2, 1, 2 ] topWidth-1 times.
+        // This means the first to the second cell is at position 1, and the 3rd to 4th cell is at position 2, 4th to 5th is position 2, etc.
+        const pattern = [1, 1, 2, 2, 1, 2];
         let allCells = [];
         // Make top row
-        let root = new Cell(id_counter++);
+        let root = new Cell();
         root.center = [0, 0];
         allCells.push(root);
-        for (let col = 1; col < top_width; ++col) {
-            let cell = new Cell(id_counter++);
-            if (col > 0) {
-                verbosePrint('linking top row together');
-                this.linkCells(allCells[col - 1], top_shape[col - 1], cell);
-            }
+        this.cells[root.id] = root;
+        for (let i = 0; i < topWidth - 1; ++i) {
+            let cell = new Cell();
+            this.linkCells(allCells[i], pattern[i%pattern.length], cell)
             allCells.push(cell);
+            this.cells[cell.id] = cell;
         }
+        return allCells;
+    }
+    makeCells() {
+        // TODO: make the numRows and topWidth configurable in some settings tab.
+        // TODO: make the number of Move.MAX_COLONIZATIONS also customizable.
+        let topWidth = 24;
+        let numRows = 7;
+        let allCells = this.makeTopRow(topWidth);
         // Build off top row
-        for (let row = 1; row < num_rows; ++row) {
-            for (let col = 0; col < top_width; ++col) {
-                let cell = new Cell(id_counter++);
-                let indexAbove = col + (row - 1) * top_width;
+        for (let row = 1; row < numRows; ++row) {
+            for (let col = 0; col < topWidth; ++col) {
+                let cell = new Cell();
+                let indexAbove = col + (row - 1) * topWidth;
                 verbosePrint(`linking cell at ${allCells.length} to row above cell at ${indexAbove}`);
                 let cellAbove = allCells[indexAbove];
                 this.linkCells(cell, 0, cellAbove);
                 allCells.push(cell);
+                this.cells[cell.id] = cell;
             }
-        }
-        for (let cell of allCells) {
-            this.cells[cell.id] = cell;
         }
         this.confirmBoardCreated();
     }
@@ -59,7 +63,7 @@ class Board {
      * Validates that the board is linked together in a valid manner.
      */
     confirmBoardCreated() {
-        let hasCenterless = this.getCells().map(c=>c.center).filter(c=>c===null).length > 0;
+        let hasCenterless = this.getCells().map(c => c.center).filter(c => c === null).length > 0;
         if (hasCenterless) {
             console.log('Board failed to set all centers.');
         } else {
@@ -175,11 +179,11 @@ class Board {
      * @param {Array<Move>} allMove
      */
     performMoves(allMoves) {
-        this.getCells().map(c=>c.resetProtection());
-        allMoves = allMoves.map(m=>Object.setPrototypeOf(m, Move.prototype))
-        let antibiotics = allMoves.map(m=>m.antibiotic);
+        this.getCells().map(c => c.resetProtection());
+        allMoves = allMoves.map(m => Object.setPrototypeOf(m, Move.prototype))
+        let antibiotics = allMoves.map(m => m.antibiotic);
         for (let move of allMoves) {
-            let enemyColonizations = allMoves.filter(m=>m.playerID != move.playerID).map(m=>m.colonies).flat();
+            let enemyColonizations = allMoves.filter(m => m.playerID != move.playerID).map(m => m.colonies).flat();
             for (let cellID of move.colonies) {
                 if (antibiotics.indexOf(cellID) >= 0) {
                     // Handle antibiotics TODO: maybe show all antibiotics used? Or just the ones that were effective?

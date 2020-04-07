@@ -17,8 +17,14 @@ class Communicator {
     constructor() {
         this.config = null;
         this.client = null;
+        this.connect = this.connect.bind(this);
+        this.setOnConnectionLost = this.setOnConnectionLost.bind(this);
+        this.setMessageCallback = this.setMessageCallback.bind(this);
+        this.onConnect = this.onConnect.bind(this);
         this.onMessageArrived = this.onMessageArrived.bind(this);
-        this.messageCallback = (obj)=>console.log('Received message, but no message callback is set.');
+        this._sendMessage = this._sendMessage.bind(this);
+        this.sendObject = this.sendObject.bind(this);
+        this.messageCallback = (obj) => console.log('Received message, but no message callback is set.');
     }
     connect(roomName, playerID, onConnectCallback, onFailure) {
         this.config = new MQTT_CONFIG(roomName, playerID);
@@ -58,7 +64,18 @@ class Communicator {
         var message = new Paho.MQTT.Message(msg);
         message.destinationName = this.config.topic;
         message.qos = 0;
-        this.client.send(message);
+        if (!this.client.isConnected()) {
+            console.log('Client is not connected. Retrying message.')
+            let options = {
+                timeout: this.config.timeout,
+                onSuccess : () => this.onConnect(()=>this._sendMessage(msg)),
+                onFailure : () => console.log('Could not reconnect to room. Sad puppies.')
+            }
+            this.client.connect(options);
+        } else {
+            console.log('Sending message.');
+            this.client.send(message);
+        }
     }
     /**
      * Stringifies and sends an object.

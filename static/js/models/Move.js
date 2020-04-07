@@ -11,7 +11,7 @@ class Move {
     isEmpty() {
         return this.colonies.length == 0 && this.antibiotic === null;
     }
-    availableMove() {
+    getAvailableMove() {
         if (this.colonies.length < Move.MAX_COLONIZATIONS) {
             return Move.COLONY;
         }

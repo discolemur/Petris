@@ -8,6 +8,8 @@ var CellState = {
     COMPETITION: -3,
 };
 
+var ID_COUNTER = 1;
+
 /**
  * Cell holds its id, neighbors, occupation state, and whether the spot was blocked by an antibiotic.
  */
@@ -18,10 +20,9 @@ class Cell {
      * Center is a float that represents the coordinate center of the cell.
      * Preact will handle scaling on-screen.
      * Just keep scaling consistent among the cell objects.
-     * @param {Number} id This should be a unique, non-negative number.
      */
-    constructor(id) {
-        this.id = id;
+    constructor() {
+        this.id = ID_COUNTER++;
         this.center = null;
         this.neighbors = [null, null, null, null, null, null];
         this.occupation = CellState.NO_USER;
