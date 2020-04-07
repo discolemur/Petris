@@ -13,6 +13,9 @@ class Move {
         return this.colonies.length == 0 && this.antibiotic === null;
     }
     getAvailableMove() {
+        if (this.frozen) {
+            return Move.NO_MOVE;
+        }
         if (this.colonies.length < Move.MAX_COLONIZATIONS) {
             return Move.COLONY;
         }
@@ -30,26 +33,28 @@ class Move {
         return Move.NO_MOVE;
     }
     addColony(cell) {
-        if (this.colonies.length == Move.MAX_COLONIZATIONS) {
+        if (this.colonies.length == Move.MAX_COLONIZATIONS || this.frozen) {
             return false;
         }
         this.colonies.push(cell.id);
         return true;
     }
     addAntibiotic(cell) {
-        if (this.antibiotic !== null) {
+        if (this.antibiotic !== null || this.frozen) {
             return false;
         }
         this.antibiotic = cell.id;
         return true;
     }
     removeAntibiotic(cell) {
-        if (this.antibiotic == cell.id) {
+        if (this.antibiotic == cell.id && !this.frozen) {
             this.antibiotic = null;
         }
     }
     removeColony(cell) {
-        this.colonies = this.colonies.filter(x=>x!=cell.id);
+        if (!this.frozen) {
+            this.colonies = this.colonies.filter(x=>x!=cell.id);
+        }
     }
     setFrozen() {
         this.frozen = true;

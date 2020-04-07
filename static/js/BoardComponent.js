@@ -70,7 +70,7 @@ class BoardComponent extends Component {
         props.blinkBGColor = ANTIBIOTIC_COLOR;
       }
     }
-    if (this.state.roomState.currentMove.frozen) {
+    if (this.state.roomState.currentMove.frozen || cell.occupation !== CellState.NO_USER) {
       props.onClick = null;
       props.hoverBGColor = null;
       props.hoverBorderColor = null;

@@ -69,6 +69,7 @@ class GamePlayComponent extends Component {
     if (state.roomState.isReadyForNextTurn()) {
       this.nextTurn();
     }
+    // TODO visually notify that the next turn has started
     return h('div', { id: 'GamePlayWrapper' },
       h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger }),
       this.endTurnButton()

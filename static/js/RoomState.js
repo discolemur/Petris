@@ -12,7 +12,7 @@ function uuidv4() {
 class RoomState {
   constructor() {
     this.players = [];
-    this.opponentMoves = {};
+    this.confirmedMoves = {};
     this.playerName = null;
     this.roomName = null;
     this.started = false;
@@ -34,6 +34,7 @@ class RoomState {
     this.joined = false;
     this.connectionMessage = null;
     this.currentMove = null;
+    this.turnNumber = 1;
     this.board = null;
     return this;
   }
@@ -133,7 +134,7 @@ class RoomState {
    * @param {function} callback 
    */
   performMoves(callback) {
-    let moves = this.opponentMoves;
+    let moves = this.confirmedMoves;
     moves[this.playerID] = this.currentMove;
     this.board.performMoves(Object.values(moves));
     this.board.setScores(this.players);
@@ -141,8 +142,9 @@ class RoomState {
     callback();
   }
   clearMoves() {
-    this.opponentMoves = {};
-    this.currentMove = new Move(this.playerID, this.turnNumber++);
+    this.confirmedMoves = {};
+    ++this.turnNumber;
+    this.currentMove = new Move(this.playerID, this.turnNumber);
     return this;
   }
     /**
@@ -152,13 +154,13 @@ class RoomState {
   logMove(move) {
     move = Object.setPrototypeOf(move, Move.prototype);
     if (move.turnNumber == this.turnNumber) {
-      this.opponentMoves[move.playerID] = move;
+      this.confirmedMoves[move.playerID] = move;
     }
     return this;
   }
   isReadyForNextTurn() {
     // TODO: some improper handling of turnNumber could cause other boards to log moves out of sync (too early) showing what another person's move is.
-    return (Object.keys(this.opponentMoves).length == this.players.length);
+    return (Object.keys(this.confirmedMoves).length == this.players.length);
   }
   addColony(cell) {
     this.currentMove.addColony(cell);
@@ -193,7 +195,7 @@ class RoomState {
   }
   freezeMove() {
     this.currentMove.setFrozen();
-    this.opponentMoves[this.playerID] = this.currentMove;
+    this.confirmedMoves[this.playerID] = this.currentMove;
     return this;
   }
   isFrozen() {
@@ -208,6 +210,7 @@ class RoomState {
         player.latestPing = new Date().getTime();
       }
     }
+    // Only drop players if the game hasn't started yet.
     if (this.isCreator && !this.started) {
       for (let p of this.players) {
         if (new Date().getTime() - p.latestPing > Player.PING_TIMEOUT) {

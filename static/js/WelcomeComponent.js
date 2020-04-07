@@ -1,5 +1,8 @@
 "use strict";
 
+// This is how long to wait for a response before assuming the room is empty.
+var TIME_UNTIL_CREATE = 1000;
+
 /**
  * Prompts until it asks which room you want to join or create.
  */
@@ -27,11 +30,19 @@ class WelcomeComponent extends Component {
     this.setState({ option: null, checkingRoom: false, roomState: props.roomState });
   }
   messageCallback(msg) {
-    if (msg.pong) {
+    if (msg.pong && this.state.roomState.isCreator) {
       this.canCreate = false;
+      this.setState({
+        roomState: this.state.roomState.setConnectionMessage(`Could not create room "${this.state.roomState.roomName}".`),
+        checkingRoom: false
+      });
     }
     if (msg.canJoin) {
       this.canJoin = true;
+      if (this.state.checkingRoom) {
+        this.joinIfRoomNotActive();
+        this.setState({ checkingRoom: false });
+      }
     }
   }
   updateRoom(event) {
@@ -83,14 +94,10 @@ class WelcomeComponent extends Component {
       setTimeout(() => {
         this.createIfRoomEmpty();
         this.setState({ checkingRoom: false });
-      }, 3000);
+      }, TIME_UNTIL_CREATE);
     } else {
       this.canJoin = false;
       COMMUNICATOR.sendObject({ requestToJoin: true });
-      setTimeout(() => {
-        this.joinIfRoomNotActive();
-        this.setState({ checkingRoom: false });
-      }, 3000);
     }
   }
   joinIfRoomNotActive() {
@@ -120,8 +127,6 @@ class WelcomeComponent extends Component {
   }
   onConnectionLost(responseObject) {
     console.log("Connection Lost: " + responseObject.errorMessage);
-    let roomState = this.state.roomState.setConnectionMessage('Connection to room lost.');
-    this.setState({ roomState: roomState });
   }
   bogus() {
     return h('div', { class: 'column' }, 'Wow. You broke it. I don\'t know how, but you broke it.');
