@@ -56,6 +56,7 @@ class BoardComponent extends Component {
     if (occupier.length == 1) {
       props.cellBGColor = occupier[0].color;
     } else if (cell.occupation == CellState.ANTIBIOTIC) {
+      props.text = 'antibiotic';
       props.cellBGColor = ANTIBIOTIC_COLOR;
     } else if (cell.occupation == CellState.ANTIBIOTIC) {
       props.cellBGColor = COMPENTITION_COLOR;

@@ -27,7 +27,12 @@ class WelcomeComponent extends Component {
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.setOption = (opt) => this.setState({ 'option': opt });
     this.movingOn = props.movingOn;
-    this.setState({ option: null, checkingRoom: false, roomState: props.roomState });
+    this.setState({
+      option: null,
+      checkingRoom: false,
+      roomState: props.roomState,
+      howTo: false
+    });
   }
   messageCallback(msg) {
     if (msg.pong && this.state.roomState.isCreator) {
@@ -139,7 +144,12 @@ class WelcomeComponent extends Component {
     return h('div', { class: 'column', margin: 'auto' },
       defaultButton('Create Room', () => this.setOption('create'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      defaultButton('Join Room', () => this.setOption('join'), true)
+      defaultButton('Join Room', () => this.setOption('join'), true),
+      h('div', { style: { display: 'block', height: '0.4em' } })//,
+      // h('div', { style: { display: 'flex', flexDirection: 'row' } },
+      //   h('ref', { onClick: this.setState({ howTo: true }) }, 'Learn to Play'),
+      //   h('ref', { url: 'https://github.com/discolemur/Petris'}, 'View on GitHub')
+      // )
     )
   }
   create() {
@@ -175,8 +185,8 @@ class WelcomeComponent extends Component {
     )
   }
   render(props, state) {
-    return (
-      h('div', { id: 'Welcome' },
+    return (state.howTo ? h(HowToComponent, { return: () => this.setState({ howTo: false }) })
+      : h('div', { id: 'Welcome' },
         this.state.option === null ? this.options()
           : this.state.option == 'join' ? this.join()
             : this.state.option == 'create' ? this.create()

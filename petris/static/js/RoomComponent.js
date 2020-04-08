@@ -52,7 +52,7 @@ class RoomComponent extends Component {
     if (msg.requestToJoin
       && this.state.roomState.isCreator
       && this.state.roomState.players.length < RoomState.MAX_PLAYERS) {
-        COMMUNICATOR.sendObject({ canJoin: true });
+      COMMUNICATOR.sendObject({ canJoin: true });
     }
     if (msg.joined && this.state.roomState.isCreator) {
       let player = msg.player;
