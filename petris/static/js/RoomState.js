@@ -24,6 +24,9 @@ class RoomState {
     this.currentMove = null;
     this.turnNumber = 1;
     this.board = null;
+    this.boardHeight = DEFAULT_BOARD_HEIGHT;
+    this.boardWidth = DEFAULT_BOARD_WIDTH;
+    this.colonizationsPerTurn = DEFAULT_COLONIZATIONS_PER_TURN;
   }
   reset() {
     this.players = [];
@@ -36,6 +39,9 @@ class RoomState {
     this.currentMove = null;
     this.turnNumber = 1;
     this.board = null;
+    this.boardHeight = DEFAULT_BOARD_HEIGHT;
+    this.boardWidth = DEFAULT_BOARD_WIDTH;
+    this.colonizationsPerTurn = DEFAULT_COLONIZATIONS_PER_TURN;
     return this;
   }
   dummyTest() {
@@ -51,7 +57,7 @@ class RoomState {
     p4.color = Player.COLOR_LIST[3];
     p5.color = Player.COLOR_LIST[4];
     p6.color = Player.COLOR_LIST[5];
-    this.players = [ p1, p2, p3, p4, p5, p6 ];
+    this.players = [p1, p2, p3, p4, p5, p6];
     this.playerName = p1.playerName;
     this.roomName = 'sandbox';
     this.started = true;
@@ -85,7 +91,7 @@ class RoomState {
   setPlayers(plist) {
     plist = this._removeDuplicates(plist);
     plist = this._setColors(plist);
-    this.players = plist.map(p=>Object.setPrototypeOf(p, Player.prototype));
+    this.players = plist.map(p => Object.setPrototypeOf(p, Player.prototype));
     return this;
   }
   addPlayer(player) {
@@ -121,12 +127,24 @@ class RoomState {
     return this;
   }
   newBoard() {
-    this.board = new Board();
+    this.board = new Board(this.boardWidth, this.boardHeight);
     this.clearMoves();
     return this;
   }
   setCurrentMove(move) {
     this.currentMove = move;
+    return this;
+  }
+  setBoardHeight(h) {
+    this.boardHeight = h;
+    return this;
+  }
+  setBoardWidth(w) {
+    this.boardWidth = w;
+    return this;
+  }
+  setColonizationsPerTurn(cpt) {
+    this.colonizationsPerTurn = cpt;
     return this;
   }
   /**
@@ -144,13 +162,13 @@ class RoomState {
   clearMoves() {
     this.confirmedMoves = {};
     ++this.turnNumber;
-    this.currentMove = new Move(this.playerID, this.turnNumber);
+    this.currentMove = new Move(this.playerID, this.turnNumber, this.colonizationsPerTurn);
     return this;
   }
-    /**
-   * Logs an opponent's move, triggers if all moves are logged, then returns this.
-   * @param {Move} move
-   */
+  /**
+ * Logs an opponent's move, triggers if all moves are logged, then returns this.
+ * @param {Move} move
+ */
   logMove(move) {
     move = Object.setPrototypeOf(move, Move.prototype);
     if (move.turnNumber == this.turnNumber) {
@@ -159,7 +177,6 @@ class RoomState {
     return this;
   }
   isReadyForNextTurn() {
-    // TODO: some improper handling of turnNumber could cause other boards to log moves out of sync (too early) showing what another person's move is.
     return (Object.keys(this.confirmedMoves).length == this.players.length);
   }
   addColony(cell) {
@@ -183,9 +200,9 @@ class RoomState {
       return Move.COLONY;
     }
     let am = this.currentMove.getAvailableMove();
-    let emptyCells = this.board.getCells().filter(c=>c.occupation == CellState.NO_USER);
+    let emptyCells = this.board.getCells().filter(c => c.occupation == CellState.NO_USER);
     if (emptyCells.length == 0
-      || emptyCells.filter(c=>this.currentMove.cellHasMove(c) == Move.NO_MOVE).length == 0) {
+      || emptyCells.filter(c => this.currentMove.cellHasMove(c) == Move.NO_MOVE).length == 0) {
       am = Move.NO_MOVE;
     }
     if (this.currentMove.isEmpty() && emptyCells.length == 0) {
@@ -221,5 +238,3 @@ class RoomState {
     return this;
   }
 }
-
-RoomState.MAX_PLAYERS = 10;

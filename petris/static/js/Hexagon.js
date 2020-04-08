@@ -1,22 +1,22 @@
 "use strict";
 
-var HexagonProps = () => {
-  return {
-    text: null,
-    fontSize: null,
-    cellWidth: null,
-    borderWidth: null,
-    cellBGColor: null,
-    cellColor: '#000000',
-    blinkBGColor: null,
-    borderColor: null,
-    hoverColor: null,
-    hoverBGColor: null,
-    hoverBorderColor: null,
-    left: null,
-    top: null,
-    onClick: null,
-    flatTop: false // Whether to rotate the hexagon to flat side up.
+class HexagonProps {
+  constructor() {
+    this.text = null;
+    this.fontSize = null;
+    this.cellWidth = null;
+    this.borderWidth = null;
+    this.cellBGColor = null;
+    this.cellColor = '#000000';
+    this.blinkBGColor = null;
+    this.borderColor = null;
+    this.hoverColor = null;
+    this.hoverBGColor = null;
+    this.hoverBorderColor = null;
+    this.left = null;
+    this.top = null;
+    this.onClick = null;
+    this.flatTop = false; // Whether to rotate the hexagon to flat side up.
   }
 }
 
@@ -150,7 +150,7 @@ class Hexagon extends Component {
 }
 
 var defaultButton = (text, onClick, enabled) => {
-  let props = HexagonProps();
+  let props = new HexagonProps();
   props.text = text;
   props.cellWidth = 200;
   props.borderWidth = 5;
@@ -163,7 +163,7 @@ var defaultButton = (text, onClick, enabled) => {
   } else {
     props.borderColor = '#101010';
     props.cellBGColor = '#4C4C4C';
-    props.onClick = ()=>{};
+    props.onClick = () => { };
   }
   props.cellColor = '#FFFFFF'
   props.position = 'relative';

@@ -2,12 +2,13 @@
  * Move holds playerID, colonies (array of colonies to add), and antibiotic.
  */
 class Move {
-    constructor(playerID, turnNumber) {
+    constructor(playerID, turnNumber, maxColonizations) {
         this.playerID = playerID;
         this.colonies = [];
         this.antibiotic = null;
         this.frozen = false;
         this.turnNumber = turnNumber;
+        this.maxColonizations = maxColonizations;
     }
     isEmpty() {
         return this.colonies.length == 0 && this.antibiotic === null;
@@ -16,7 +17,7 @@ class Move {
         if (this.frozen) {
             return Move.NO_MOVE;
         }
-        if (this.colonies.length < Move.MAX_COLONIZATIONS) {
+        if (this.colonies.length < this.maxColonizations) {
             return Move.COLONY;
         }
         if (this.antibiotic === null) {
@@ -33,7 +34,7 @@ class Move {
         return Move.NO_MOVE;
     }
     addColony(cell) {
-        if (this.colonies.length == Move.MAX_COLONIZATIONS || this.frozen) {
+        if (this.colonies.length == this.maxColonizations || this.frozen) {
             return false;
         }
         this.colonies.push(cell.id);
@@ -60,7 +61,6 @@ class Move {
         this.frozen = true;
     }
 }
-Move.MAX_COLONIZATIONS = 2;
 Move.COLONY = 10;
 Move.ANTIBIOTIC = 20;
 Move.NO_MOVE = false;

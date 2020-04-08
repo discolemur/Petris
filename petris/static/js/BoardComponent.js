@@ -1,6 +1,5 @@
 "use strict";
 
-var BOARD_CELL_WIDTH = 60;
 var BOARD_CELL_BORDER_WIDTH = 3;
 
 
@@ -11,6 +10,9 @@ var ANTIBIOTIC_COLOR = '#97F365';
 class BoardComponent extends Component {
   constructor(props) {
     super(props);
+    this.adaptCellByAvailableMove = this.adaptCellByAvailableMove.bind(this);
+    this.adaptCellByOccupation = this.adaptCellByOccupation.bind(this);
+    this.adaptCellByCurrentMove = this.adaptCellByCurrentMove.bind(this);
     this.boardCell = this.boardCell.bind(this);
     this.onCellClick = this.onCellClick.bind(this);
     this.updateTrigger = props.updateTrigger;
@@ -19,40 +21,33 @@ class BoardComponent extends Component {
     });
   }
   /**
- * Returns the rendering of one cell in absolute position.
- * @param {Cell} cell 
- * @param {Move} currentMove 
- * @param {Array<Player>} players 
- * @param {Number} minX 
- * @param {Number} minY 
- * @param {function} onClick 
- */
-  boardCell(cell, left, top, onClick) {
-    let players = this.state.roomState.players;
-    let currentMove = this.state.roomState.currentMove;
-    // TODO break some logic into functions...
-    let props = HexagonProps();
-    props.borderColor = '#4C4C4C';
+   * Step One: Consider available moves, and adapt cell accordingly.
+   * @param {Cell} cell 
+   * @param {HexagonProps} props 
+   */
+  adaptCellByAvailableMove(cell, props) {
     let availableMove = this.state.roomState.getAvailableMove();
     let availableMoveColor = null;
-    if (currentMove.cellHasMove(cell) != Move.NO_MOVE) {
+    if (this.state.roomState.currentMove.cellHasMove(cell) != Move.NO_MOVE) {
       availableMoveColor = '#484848';
       props.hoverBorderColor = '#C30000';
     } else {
       if (availableMove == Move.ANTIBIOTIC) {
         availableMoveColor = ANTIBIOTIC_COLOR;
       } else if (availableMove == Move.COLONY) {
-        availableMoveColor = players.filter(p => p.playerID == currentMove.playerID)[0].color;
+        availableMoveColor = this.state.roomState.players.filter(p => p.playerID == this.state.roomState.playerID)[0].color;
       }
     }
     props.hoverBGColor = availableMoveColor;
-    props.onClick = onClick;
-    props.left = left;
-    props.top = top;
-    props.cellWidth = BOARD_CELL_WIDTH;
-    props.borderWidth = BOARD_CELL_BORDER_WIDTH;
-    props.flatTop = true;
-    let occupier = players.filter(p => p.playerID == cell.occupation);
+    return props;
+  }
+  /**
+   * Step Two: Consider current occupation of cell, and adapt cell accordingly.
+   * @param {Cell} cell 
+   * @param {HexagonProps} props 
+   */
+  adaptCellByOccupation(cell, props) {
+    let occupier = this.state.roomState.players.filter(p => p.playerID == cell.occupation);
     if (occupier.length == 1) {
       props.cellBGColor = occupier[0].color;
     } else if (cell.occupation == CellState.ANTIBIOTIC) {
@@ -63,9 +58,18 @@ class BoardComponent extends Component {
     } else if (cell.occupation == CellState.NO_USER) {
       props.cellBGColor = EMPTY_COLOR;
     }
+    return props;
+  }
+  /**
+   * Step Three: Consider current move decisions, and adapt cell accordingly.
+   * @param {Cell} cell 
+   * @param {HexagonProps} props 
+   */
+  adaptCellByCurrentMove(cell, props) {
+    let currentMove = this.state.roomState.currentMove;
     if (currentMove !== null) {
       if (currentMove.colonies.indexOf(cell.id) >= 0) {
-        props.blinkBGColor = players.filter(p => p.playerID === currentMove.playerID)[0].color;
+        props.blinkBGColor = this.state.roomState.players.filter(p => p.playerID === currentMove.playerID)[0].color;
       } else if (currentMove.antibiotic === cell.id) {
         props.text = 'antibiotic';
         props.blinkBGColor = ANTIBIOTIC_COLOR;
@@ -76,6 +80,27 @@ class BoardComponent extends Component {
       props.hoverBGColor = null;
       props.hoverBorderColor = null;
     }
+    return props;
+  }
+  /**
+ * Returns the rendering of one cell in absolute position.
+ * @param {Cell} cell 
+ * @param {Number} left 
+ * @param {Number} top
+ * @param {function} onClick 
+ */
+  boardCell(cell, left, top, onClick) {
+    let props = new HexagonProps();
+    props.onClick = onClick;
+    props.left = left;
+    props.top = top;
+    props.cellWidth = this.boardCellWidth;
+    props.borderWidth = BOARD_CELL_BORDER_WIDTH;
+    props.borderColor = '#4C4C4C';
+    props.flatTop = true;
+    props = this.adaptCellByAvailableMove(cell, props);
+    props = this.adaptCellByOccupation(cell, props);
+    props = this.adaptCellByCurrentMove(cell, props);
     return h(Hexagon, { styleParams: props });
   }
   onCellClick(cell) {
@@ -98,6 +123,7 @@ class BoardComponent extends Component {
     this.setState({ roomState: this.state.roomState.setCurrentMove(currentMove) });
   }
   render(props, state) {
+    this.boardCellWidth = props.boardCellWidth;
     let cells = state.roomState.board.getCells();
     let minX = Math.min.apply(null, cells.map(c => c.center[0]));
     let maxX = Math.max.apply(null, cells.map(c => c.center[0]));
@@ -106,8 +132,8 @@ class BoardComponent extends Component {
     return h('div', {
       id: 'Board',
       style: {
-        height: `${(maxY - minY + 2) * BOARD_CELL_WIDTH}px`,
-        width: `${(maxX - minX + 2) * BOARD_CELL_WIDTH}px`
+        height: `${(maxY - minY + 2) * this.boardCellWidth}px`,
+        width: `${(maxX - minX + 2) * this.boardCellWidth}px`
       }
     },
       cells.map(c => this.boardCell(

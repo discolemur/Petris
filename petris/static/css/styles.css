@@ -75,6 +75,17 @@ body,
   flex-direction: column;
   justify-content: start;
 }
+.slider {
+  margin-left: auto;
+  margin-right: auto;
+}
+.slider span {
+  margin-left:10px;
+  margin-right: 10px;
+}
+.slider input {
+  width: 8rem;
+}
 #Board {
   position: relative;
   margin: 0 auto;

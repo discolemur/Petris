@@ -18,7 +18,7 @@ class WrapperComponent extends Component {
     let scoreboard = null;
     if (this.state.roomState.started) {
       let playerData = this.state.roomState.players.map(p => {
-        let hexagonProps = HexagonProps();
+        let hexagonProps = new HexagonProps();
         hexagonProps.position = 'relative';
         hexagonProps.text = p.score;
         hexagonProps.cellWidth = 40;

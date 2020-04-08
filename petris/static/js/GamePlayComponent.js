@@ -9,11 +9,13 @@ class GamePlayComponent extends Component {
     this.pingForPlayers = this.pingForPlayers.bind(this);
     this.messageCallback = this.messageCallback.bind(this);
     this.endTurnButton = this.endTurnButton.bind(this);
+    this.adjustBoardCellWidth = this.adjustBoardCellWidth.bind(this);
     this.updateTrigger = () => this.setState({});
     this.movingOn = props.movingOn;
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
     this.state.roomState = props.roomState;
+    this.state.boardCellWidth = DEFAULT_BOARD_CELL_WIDTH;
     this.pingForPlayers();
   }
   onConnectionLost() {
@@ -65,13 +67,21 @@ class GamePlayComponent extends Component {
     }
     return h('div', { style: { marginTop: '22px' } }, defaultButton(text, this.endTurn, enabled));
   }
+  adjustBoardCellWidth(inputEvent) {
+    this.setState({ boardCellWidth: inputEvent.target.valueAsNumber});
+  }
   render(props, state) {
     if (state.roomState.isReadyForNextTurn()) {
       this.nextTurn();
     }
     // TODO visually notify that the next turn has started
     return h('div', { id: 'GamePlayWrapper' },
-      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger }),
+      h('div', { class: "slider"},
+        h('span', {}, 'Small'),
+        h('input', { type: "range", min: 20, max: 100, value: state.boardCellWidth, onInput: this.adjustBoardCellWidth }),
+        h('span', {}, 'Large')
+      ),
+      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, boardCellWidth: state.boardCellWidth }),
       this.endTurnButton()
     )
   }

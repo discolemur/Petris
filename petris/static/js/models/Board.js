@@ -13,16 +13,18 @@ function verbosePrint(msg) {
  * It can calculate the current scores.
  */
 class Board {
-    constructor() {
+    constructor(width, height) {
+        this.width = width !== null ? width : DEFAULT_BOARD_WIDTH;
+        this.height = height !== null ? height : DEFAULT_BOARD_HEIGHT;
         this.cells = {}
         this.makeCells();
     }
     getCells() {
         return Object.values(this.cells);
     }
-    makeTopRow(topWidth) {
+    makeTopRow() {
         // I define the pattern as the order of link positions from each cell n to its neighbor n+1 from the perspective of n.
-        // The shape of the top row repeats [ 1, 1, 2, 2, 1, 2 ] topWidth-1 times.
+        // The shape of the top row repeats [ 1, 1, 2, 2, 1, 2 ] this.width-1 times.
         // This means the first to the second cell is at position 1, and the 3rd to 4th cell is at position 2, 4th to 5th is position 2, etc.
         const pattern = [1, 1, 2, 2, 1, 2];
         let allCells = [];
@@ -31,7 +33,7 @@ class Board {
         root.center = [0, 0];
         allCells.push(root);
         this.cells[root.id] = root;
-        for (let i = 0; i < topWidth - 1; ++i) {
+        for (let i = 0; i < this.width - 1; ++i) {
             let cell = new Cell();
             this.linkCells(allCells[i], pattern[i%pattern.length], cell)
             allCells.push(cell);
@@ -40,16 +42,12 @@ class Board {
         return allCells;
     }
     makeCells() {
-        // TODO: make the numRows and topWidth configurable in some settings tab.
-        // TODO: make the number of Move.MAX_COLONIZATIONS also customizable.
-        let topWidth = 24;
-        let numRows = 7;
-        let allCells = this.makeTopRow(topWidth);
+        let allCells = this.makeTopRow();
         // Build off top row
-        for (let row = 1; row < numRows; ++row) {
-            for (let col = 0; col < topWidth; ++col) {
+        for (let row = 1; row < this.height; ++row) {
+            for (let col = 0; col < this.width; ++col) {
                 let cell = new Cell();
-                let indexAbove = col + (row - 1) * topWidth;
+                let indexAbove = col + (row - 1) * this.width;
                 verbosePrint(`linking cell at ${allCells.length} to row above cell at ${indexAbove}`);
                 let cellAbove = allCells[indexAbove];
                 this.linkCells(cell, 0, cellAbove);
