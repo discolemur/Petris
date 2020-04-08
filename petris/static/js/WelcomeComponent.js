@@ -145,11 +145,11 @@ class WelcomeComponent extends Component {
       defaultButton('Create Room', () => this.setOption('create'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       defaultButton('Join Room', () => this.setOption('join'), true),
-      h('div', { style: { display: 'block', height: '0.4em' } })//,
-      // h('div', { style: { display: 'flex', flexDirection: 'row' } },
-      //   h('ref', { onClick: this.setState({ howTo: true }) }, 'Learn to Play'),
-      //   h('ref', { url: 'https://github.com/discolemur/Petris'}, 'View on GitHub')
-      // )
+      h('div', { style: { display: 'block', height: '0.4em' } }),
+      h('div', { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
+        h('div', { class: 'btn', onClick: ()=>this.setState({ howTo: true }) }, 'Learn to Play'),
+        h('a', { class: 'btn', href: 'https://github.com/discolemur/Petris'}, 'View on GitHub')
+      )
     )
   }
   create() {

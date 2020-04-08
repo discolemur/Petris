@@ -1,12 +1,42 @@
 "use strict";
 
-class WrapperComponent extends Component {
+class HowToComponent extends Component {
     constructor(props) {
         super(props)
+        this.previous = this.previous.bind(this);
+        this.next = this.next.bind(this);
         this.return = props.return;
+        this.helpImgs = [
+            '/petris/static/img/examples/1.png',
+            '/petris/static/img/examples/2.png',
+            '/petris/static/img/examples/3.png',
+            '/petris/static/img/examples/4.png',
+            '/petris/static/img/examples/5.png',
+            '/petris/static/img/examples/6.png',
+            '/petris/static/img/examples/7.png',
+            '/petris/static/img/examples/8.png',
+            '/petris/static/img/examples/9.png',
+            '/petris/static/img/examples/10.png'
+        ];
+        this.setState({ helpIndex: 0 });
+    }
+    previous() {
+        if (this.state.helpIndex <= 0) {
+            this.return();
+        }
+        this.setState({ helpIndex: this.state.helpIndex - 1 });
+    }
+    next() {
+        if (this.state.helpIndex >= this.helpImgs.length - 1) {
+            this.return();
+        }
+        this.setState({ helpIndex: this.state.helpIndex + 1 });
     }
     render(props, state) {
-        this.return();
-        return h('div',{})
+        return h('div', { id: 'Help' },
+            defaultButton(state.helpIndex > 0 ? 'Back' : 'Return to Menu', this.previous, true),
+            h('img', { src: this.helpImgs[state.helpIndex], style: { height: '50%', border: 'solid', objectFit: 'scale-down' } }),
+            defaultButton(state.helpIndex < this.helpImgs.length - 1 ? 'Next' : 'Let\'s Go!', this.next, true)
+        )
     }
 }
