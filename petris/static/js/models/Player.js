@@ -28,5 +28,3 @@ class Player {
     '#6E96B4',
     '#6F1543'
   ]
-  Player.PING_TIMEOUT = 10 * 1000; // 10 seconds
-  Player.PING_FREQUENCY = 3 * 1000; // 3 seconds

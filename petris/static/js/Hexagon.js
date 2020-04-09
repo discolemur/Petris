@@ -142,7 +142,7 @@ class Hexagon extends Component {
     return h('div', { class: classes, style: positionStyle },
       h('div', { id: this.HEX_ID, class: 'hexagon', style: this.HEX_STYLE(), onClick: this.style.onClick },
         h('div', { class: "hexTop", style: this.HEX_TOP_STYLE() }),
-        h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE() }),
+        h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE(), onClick: this.style.onClick }),
         h('span', { style: { fontSize: fontSize } }, this.style.text)
       )
     )

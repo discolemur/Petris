@@ -13,6 +13,7 @@ class RoomComponent extends Component {
     this.adjustBoardHeight = this.adjustBoardHeight.bind(this);
     this.adjustBoardWidth = this.adjustBoardWidth.bind(this);
     this.adjustColonizationsPerTurn = this.adjustColonizationsPerTurn.bind(this);
+    this.estimateNumTurns = this.estimateNumTurns.bind(this);
     this.sliders = this.sliders.bind(this);
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.movingOn = props.movingOn;
@@ -25,8 +26,9 @@ class RoomComponent extends Component {
     setTimeout(() => {
       if (!this.state.roomState.started) {
         this.pingForPlayers();
+        this.setState({ roomState: this.state.roomState.dropUnresponsivePlayers() });
       }
-    }, Player.PING_FREQUENCY);
+    }, ROOM_PING_FREQUENCY);
     COMMUNICATOR.sendObject({ ping: true });
   }
   start() {
@@ -104,6 +106,10 @@ class RoomComponent extends Component {
   adjustColonizationsPerTurn(inputEvent) {
     this.setState({ roomState: this.state.roomState.setColonizationsPerTurn(inputEvent.target.valueAsNumber) });
   }
+  estimateNumTurns() {
+    return Math.floor((this.state.roomState.boardHeight * this.state.roomState.boardWidth)
+      / (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn))
+  }
   sliders() {
     return [h('div', { class: "slider" },
       h('span', {}, `Board Width: ${this.state.roomState.boardWidth}  |  2`),
@@ -119,7 +125,9 @@ class RoomComponent extends Component {
       h('span', {}, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}  |  1`),
       h('input', { type: "range", min: 1, max: 10, value: this.state.roomState.colonizationsPerTurn, onInput: this.adjustColonizationsPerTurn }),
       h('span', {}, '10')
-    )]
+    ),
+    h('span', { style: { textAlign: 'center', marginTop: '10px', marginBottom: '10px' } }, `Expected number of turns to complete game with ${Math.max.apply(null, [2, this.state.roomState.players.length])} players: ${this.estimateNumTurns()} turns`)
+  ]
   }
   render(props, state) {
     if (state.roomState.players.length > 1 && state.startFailed) {

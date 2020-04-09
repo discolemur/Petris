@@ -221,18 +221,27 @@ class RoomState {
     }
     return false;
   }
-  setLatestPing(pID) {
-    for (let player of this.players) {
-      if (player.playerID === pID || player.playerID === this.playerID) {
-        player.latestPing = new Date().getTime();
-      }
-    }
+  dropUnresponsivePlayers() {
     // Only drop players if the game hasn't started yet.
     if (this.isCreator && !this.started) {
       for (let p of this.players) {
-        if (new Date().getTime() - p.latestPing > Player.PING_TIMEOUT) {
+        if (p.playerID == this.playerID) {
+          continue;
+        }
+        if (new Date().getTime() - p.latestPing > PING_TIMEOUT) {
           this.dropPlayer(p.playerID);
         }
+      }
+    }
+    return this;
+  }
+  setLatestPing(pID) {
+    for (let player of this.players) {
+      if (player.playerID === pID) {
+        player.latestPing = new Date().getTime();
+      }
+      if (player.playerID === this.playerID) {
+        player.latestPing = new Date().getTime(); // Might as well confirm that we exist too.
       }
     }
     return this;

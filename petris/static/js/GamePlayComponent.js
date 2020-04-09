@@ -44,7 +44,7 @@ class GamePlayComponent extends Component {
       if (this.state.roomState.isFrozen()) {
         this.pingForPlayers();
       }
-    }, Player.PING_FREQUENCY);
+    }, GAME_PING_FREQUENCY);
   }
   messageCallback(msg) {
     if (msg.move) {
