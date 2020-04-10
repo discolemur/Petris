@@ -4,6 +4,7 @@ class WrapperComponent extends Component {
   constructor(props) {
     super(props);
     this.movingOn = this.movingOn.bind(this);
+    this.getPlayerScoreElements = this.getPlayerScoreElements.bind(this);
     this.banner = this.banner.bind(this);
     let roomState = new RoomState();
     if (TESTING) {
@@ -14,28 +15,46 @@ class WrapperComponent extends Component {
   movingOn(roomState) {
     this.setState({ roomState: roomState });
   }
+  getPlayerScoreElements() {
+    let elements = [];
+    let pair = [];
+    for (let i = 0; i < this.state.roomState.players.length; ++i) {
+      let className = 'playerScore';
+      if (i % 2 == 1) {
+        className = 'playerScoreLower';
+      }
+      let p = this.state.roomState.players[i];
+      let hexagonProps = new HexagonProps();
+      hexagonProps.position = 'relative';
+      hexagonProps.text = p.score;
+      hexagonProps.cellWidth = 40;
+      hexagonProps.fontSize = 20;
+      hexagonProps.borderWidth = 3;
+      hexagonProps.borderColor = p.color;
+      hexagonProps.cellBGColor = 'white';
+      pair.push(h('div', { class: className },
+        h(Hexagon, { styleParams: hexagonProps }),
+        h('span', { style: { marginLeft: '10px' } }, `${p.playerName}`)
+      ));
+      if (i % 2 == 1) {
+        elements.push(h('div', { class: 'scorePair' }, pair));
+        pair = [];
+      }
+    }
+    if (pair.length == 1) {
+      elements.push(h('div', { class: 'scorePair' }, pair));
+    }
+    return elements;
+  }
   banner() {
     let scoreboard = null;
     if (this.state.roomState.started) {
-      let playerData = this.state.roomState.players.map(p => {
-        let hexagonProps = new HexagonProps();
-        hexagonProps.position = 'relative';
-        hexagonProps.text = p.score;
-        hexagonProps.cellWidth = 40;
-        hexagonProps.fontSize = 15;
-        hexagonProps.borderWidth = 3;
-        hexagonProps.borderColor = p.color;
-        hexagonProps.cellBGColor = 'white';
-        return h('div', { class: 'playerScore' },
-          h(Hexagon, { styleParams: hexagonProps }),
-          h('span', { style: { marginLeft: '10px' } }, `${p.playerName}`)
-        );
-      });
+      let playerData = this.getPlayerScoreElements();
       scoreboard = h('div', { id: 'BannerScores' }, playerData);
     }
     return h('div', { id: 'Banner' },
       h('div', { id: 'BannerContents' },
-        h('span', { style: { height: '100%', minWidth: '30%' } }, 'Petris'),
+        h('span', { style: { height: '100%', minWidth: '30%', flexShrink: 0 } }, 'Petris'),
         scoreboard
       )
     );

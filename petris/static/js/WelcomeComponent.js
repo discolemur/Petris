@@ -147,8 +147,8 @@ class WelcomeComponent extends Component {
       defaultButton('Join Room', () => this.setOption('join'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
-        h('div', { class: 'btn', onClick: ()=>this.setState({ howTo: true }) }, 'Learn to Play'),
-        h('a', { class: 'btn', href: 'https://github.com/discolemur/Petris'}, 'View on GitHub')
+        h('div', { class: 'btn', onClick: () => this.setState({ howTo: true }) }, 'Learn to Play'),
+        h('a', { class: 'btn', href: 'https://github.com/discolemur/Petris' }, 'View on GitHub')
       )
     )
   }
@@ -163,8 +163,11 @@ class WelcomeComponent extends Component {
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        defaultButton('Create Room', () => this.connectToRoom(true), true)
+      h('div', { class: 'sideBySide' },
+        defaultButton('Back', () => this.setState({ option: null }), true),
+        h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
+          defaultButton('Create Room', () => this.connectToRoom(true), true)
+        )
       )
     )
   }
@@ -179,8 +182,11 @@ class WelcomeComponent extends Component {
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-        defaultButton('Join Room', () => this.connectToRoom(false), true)
+      h('div', { class: 'sideBySide' },
+        defaultButton('Back', () => this.setState({ option: null }), true),
+        h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
+          defaultButton('Join Room', () => this.connectToRoom(false), true)
+        )
       )
     )
   }

@@ -34,9 +34,9 @@ class HowToComponent extends Component {
     }
     render(props, state) {
         return h('div', { id: 'Help' },
-            defaultButton(state.helpIndex > 0 ? 'Back' : 'Return to Menu', this.previous, true),
-            h('img', { src: this.helpImgs[state.helpIndex], style: { height: '50%', border: 'solid', objectFit: 'scale-down' } }),
-            defaultButton(state.helpIndex < this.helpImgs.length - 1 ? 'Next' : 'Let\'s Go!', this.next, true)
+            h('div', {style:{margin:'auto'}}, defaultButton(state.helpIndex > 0 ? 'Back' : 'Return to Menu', this.previous, true)),
+            h('img', { src: this.helpImgs[state.helpIndex], style: { maxWidth: '50%', border: 'solid', objectFit: 'scale-down' } }),
+            h('div', {style:{margin:'auto'}}, defaultButton(state.helpIndex < this.helpImgs.length - 1 ? 'Next' : 'Let\'s Go!', this.next, true))
         )
     }
 }

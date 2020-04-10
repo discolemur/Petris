@@ -91,6 +91,9 @@ class BoardComponent extends Component {
     props.borderWidth = BOARD_CELL_BORDER_WIDTH;
     props.borderColor = '#4C4C4C';
     props.flatTop = true;
+    if (cell.wasProtected) {
+      props.borderColor = ANTIBIOTIC_COLOR;
+    }
     props = this.adaptCellByAvailableMove(cell, props);
     props = this.adaptCellByOccupation(cell, props);
     props = this.adaptCellByCurrentMove(cell, props);

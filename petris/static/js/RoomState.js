@@ -68,13 +68,15 @@ class RoomState {
     let p4 = new Player('jacob', 'jacob').setIsComputer();
     let p5 = new Player('jessica', 'jessica').setIsComputer();
     let p6 = new Player('rebecca', 'rebecca').setIsComputer();
+    let p7 = new Player('sydney', 'sydney').setIsComputer();
     p1.color = Player.COLOR_LIST[0];
     p2.color = Player.COLOR_LIST[1];
     p3.color = Player.COLOR_LIST[2];
     p4.color = Player.COLOR_LIST[3];
     p5.color = Player.COLOR_LIST[4];
     p6.color = Player.COLOR_LIST[5];
-    this.players = [p1, p2, p3, p4, p5, p6];
+    p7.color = Player.COLOR_LIST[6];
+    this.players = [p1, p2, p3, p4, p5, p6, p7];
     this.playerName = p1.playerName;
     this.roomName = 'sandbox';
     this.started = true;
@@ -163,6 +165,7 @@ class RoomState {
     let emptyCells = this._getEmptyCells();
     if (this.colonizationsPerTurn >= emptyCells.length) {
       console.log('Autofilling because full.')
+      this.board.resetProtection();
       for (let c of emptyCells) {
         c.occupation = CellState.COMPETITION;
       }

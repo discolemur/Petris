@@ -172,19 +172,25 @@ class Board {
         return true;
     }
     /**
+     * Resets cell antibiotic protection flag on all cells.
+     */
+    resetProtection() {
+        this.getCells().map(c => c.resetProtection());
+    }
+    /**
      * Performs all moves on the board, considering the rules.
      * NOTE: do not call this function until all moves have been submitted.
      * @param {Array<Move>} allMove
      */
     performMoves(allMoves) {
-        this.getCells().map(c => c.resetProtection());
+        this.resetProtection();
         allMoves = allMoves.map(m => Object.setPrototypeOf(m, Move.prototype))
         let antibiotics = allMoves.map(m => m.antibiotic);
         for (let move of allMoves) {
             let enemyColonizations = allMoves.filter(m => m.playerID != move.playerID).map(m => m.colonies).flat();
             for (let cellID of move.colonies) {
                 if (antibiotics.indexOf(cellID) >= 0) {
-                    // Handle antibiotics TODO: maybe show all antibiotics used? Or just the ones that were effective?
+                    // Handle antibiotics. We only show the ones that were effective. (see BoardComponent.boardCell)
                     this.cells[cellID].wasProtected = true;
                 } else if (enemyColonizations.indexOf(cellID) >= 0) {
                     // Handle competitions
