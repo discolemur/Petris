@@ -38,7 +38,7 @@ class WelcomeComponent extends Component {
     if (msg.pong && this.state.roomState.isCreator) {
       this.canCreate = false;
       this.setState({
-        roomState: this.state.roomState.setConnectionMessage(`Could not create room "${this.state.roomState.roomName}".`),
+        roomState: this.state.roomState.setBasicProperty('connectionMessage', `Could not create room "${this.state.roomState.roomName}".`),
         checkingRoom: false
       });
     }
@@ -57,9 +57,9 @@ class WelcomeComponent extends Component {
       || roomName.indexOf(' ') != -1
       || roomName.length > 15
       || !roomName.match(/^[a-z0-9]*$/i)) {
-      this.setState({ roomState: this.state.roomState.setRoomName(this.state.roomState.roomName) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('roomName', this.state.roomState.roomName) });
     } else {
-      this.setState({ roomState: this.state.roomState.setRoomName(roomName) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('roomName', roomName) });
     }
   }
   updateName(event) {
@@ -69,16 +69,16 @@ class WelcomeComponent extends Component {
       || playerName.indexOf(' ') != -1
       || playerName.length > 15
       || !playerName.match(/^[a-z0-9 ]*$/i)) {
-      this.setState({ roomState: this.state.roomState.setPlayerName(this.state.roomState.playerName) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('playerName', this.state.roomState.playerName) });
     } else {
-      this.setState({ roomState: this.state.roomState.setPlayerName(playerName) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('playerName', playerName) });
     }
   }
   connectToRoom(created) {
     let roomState = this.state.roomState;
     if (roomState.roomName == null || roomState.roomName.length == 0
       || roomState.playerName == null || roomState.playerName.length == 0) {
-      this.setState({ roomState: roomState.setConnectionMessage('Please type your name and a room name.') });
+      this.setState({ roomState: roomState.setBasicProperty('connectionMessage', 'Please type your name and a room name.') });
       return;
     }
     COMMUNICATOR.connect(
@@ -88,7 +88,7 @@ class WelcomeComponent extends Component {
       this.onFailToConnect
     );
     roomState = roomState.addPlayer(new Player(roomState.playerID, roomState.playerName));
-    this.setState({ roomState: roomState.setIsCreator(created), checkingRoom: true });
+    this.setState({ roomState: roomState.setBasicProperty('isCreator', created), checkingRoom: true });
   }
   onConnectToRoom() {
     this.state.roomState.connectionMessage = null;
@@ -111,23 +111,23 @@ class WelcomeComponent extends Component {
         joined: true,
         player: new Player(this.state.roomState.playerID, this.state.roomState.playerName)
       });
-      let roomState = this.state.roomState.setJoined(true);
+      let roomState = this.state.roomState.setBasicProperty('joined', true);
       this.movingOn(roomState);
     } else {
-      this.setState({ roomState: this.state.roomState.setConnectionMessage(`Could not connect to room "${this.state.roomState.roomName}".`) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('connectionMessage', `Could not connect to room "${this.state.roomState.roomName}".`) });
     }
   }
   createIfRoomEmpty() {
     if (this.canCreate) {
-      let roomState = this.state.roomState.setJoined(true);
+      let roomState = this.state.roomState.setBasicProperty('joined', true);
       this.movingOn(roomState);
     } else {
-      this.setState({ roomState: this.state.roomState.setConnectionMessage(`Could not create room "${this.state.roomState.roomName}".`) });
+      this.setState({ roomState: this.state.roomState.setBasicProperty('connectionMessage', `Could not create room "${this.state.roomState.roomName}".`) });
     }
   }
   onFailToConnect() {
     console.log('Failed to connect to room.');
-    let roomState = this.state.roomState.setConnectionMessage('Failed to connect to room.');
+    let roomState = this.state.roomState.setBasicProperty('connectionMessage', 'Failed to connect to room.');
     this.setState({ roomState: roomState });
   }
   onConnectionLost(responseObject) {

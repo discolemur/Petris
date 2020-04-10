@@ -9,6 +9,23 @@ function uuidv4() {
   );
 }
 
+/**
+ * From https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+ * Community Wiki Jeff answer.
+ * Shuffles array in place.
+ * @param {Array} a items An array containing the items.
+ */
+function shuffle(a) {
+  let j, x, i;
+  for (i = a.length - 1; i > 0; i--) {
+    j = Math.floor(Math.random() * (i + 1));
+    x = a[i];
+    a[i] = a[j];
+    a[j] = x;
+  }
+  return a;
+}
+
 class RoomState {
   constructor() {
     this.players = [];
@@ -46,11 +63,11 @@ class RoomState {
   }
   dummyTest() {
     let p1 = new Player('nick', 'nick');
-    let p2 = new Player('andrew', 'andrew');
-    let p3 = new Player('andrew', 'ryan');
-    let p4 = new Player('andrew', 'jacob');
-    let p5 = new Player('andrew', 'jessica');
-    let p6 = new Player('andrew', 'rebecca');
+    let p2 = new Player('andrew', 'andrew').setIsComputer();
+    let p3 = new Player('ryan', 'ryan').setIsComputer();
+    let p4 = new Player('jacob', 'jacob').setIsComputer();
+    let p5 = new Player('jessica', 'jessica').setIsComputer();
+    let p6 = new Player('rebecca', 'rebecca').setIsComputer();
     p1.color = Player.COLOR_LIST[0];
     p2.color = Player.COLOR_LIST[1];
     p3.color = Player.COLOR_LIST[2];
@@ -66,12 +83,17 @@ class RoomState {
     this.connectionMessage = null;
     this.playerID = p1.playerID;
     this.onlyTesting = true;
+    this.boardHeight = 5;
+    this.boardWidth = 5;
     return this;
   }
-  _removeDuplicates(plist) {
+  _removeDuplicates(arr, idKey) {
+    if (arr === null || arr.length < 2) {
+      return arr;
+    }
     let tmp = {};
-    for (let player of plist) {
-      tmp[player.playerID] = player;
+    for (let x of arr) {
+      tmp[x[idKey]] = x;
     }
     return Array.from(Object.values(tmp));
   }
@@ -89,7 +111,7 @@ class RoomState {
     return plist;
   }
   setPlayers(plist) {
-    plist = this._removeDuplicates(plist);
+    plist = this._removeDuplicates(plist, 'playerID');
     plist = this._setColors(plist);
     this.players = plist.map(p => Object.setPrototypeOf(p, Player.prototype));
     return this;
@@ -102,49 +124,26 @@ class RoomState {
     this.players = this.players.filter(p => p.playerID != pID)
     return this;
   }
-  setPlayerName(name) {
-    this.playerName = name;
-    return this;
-  }
-  setRoomName(name) {
-    this.roomName = name;
-    return this;
-  }
-  setStarted(started) {
-    this.started = started;
-    return this;
-  }
-  setIsCreator(isCreator) {
-    this.isCreator = isCreator;
-    return this;
-  }
-  setJoined(joined) {
-    this.joined = joined;
-    return this;
-  }
-  setConnectionMessage(msg) {
-    this.connectionMessage = msg;
+  /**
+   * Attribute may be any key of RoomState objects.
+   * Ensures that the attribute is a valid key.
+   * Value must be the proper value of that key.
+   * 
+   * Returns this.
+   * 
+   * @param {*} attribute 
+   * @param {*} value 
+   */
+  setBasicProperty(attribute, value) {
+    if (Object.keys(this).indexOf(attribute) < 0) {
+      console.log(`MAJOR ERRROR! ${attribute} is not an attribute of a RoomState object!`);
+    }
+    this[attribute] = value;
     return this;
   }
   newBoard() {
     this.board = new Board(this.boardWidth, this.boardHeight);
     this.clearMoves();
-    return this;
-  }
-  setCurrentMove(move) {
-    this.currentMove = move;
-    return this;
-  }
-  setBoardHeight(h) {
-    this.boardHeight = h;
-    return this;
-  }
-  setBoardWidth(w) {
-    this.boardWidth = w;
-    return this;
-  }
-  setColonizationsPerTurn(cpt) {
-    this.colonizationsPerTurn = cpt;
     return this;
   }
   /**
@@ -155,9 +154,19 @@ class RoomState {
     let moves = this.confirmedMoves;
     moves[this.playerID] = this.currentMove;
     this.board.performMoves(Object.values(moves));
+    this.autofillIfBoardTooFull();
     this.board.setScores(this.players);
     this.clearMoves();
     callback();
+  }
+  autofillIfBoardTooFull() {
+    let emptyCells = this._getEmptyCells();
+    if (this.colonizationsPerTurn >= emptyCells.length) {
+      console.log('Autofilling because full.')
+      for (let c of emptyCells) {
+        c.occupation = CellState.COMPETITION;
+      }
+    }
   }
   clearMoves() {
     this.confirmedMoves = {};
@@ -176,24 +185,53 @@ class RoomState {
     }
     return this;
   }
+  _getEmptyCells() {
+    return this.board.getCells().filter(c => (c.occupation == CellState.NO_USER));
+  }
+  /**
+   * Returns list of empty cells adjacent to property owned by player.
+   * @param {Player} player 
+   */
+  _getEmptyAdjacentCells(playerID) {
+    let ownedEdges = this.board.getCells().filter(c => c.occupation == playerID).filter(c => c.hasUnoccupiedNeighbor());
+    return this._removeDuplicates(ownedEdges.map(edge => edge.getUnoccupiedNeighbors()).flat(), 'id');
+  }
+  _autoMove(playerID) {
+    let emptyCells = this._getEmptyCells();
+    let move = new Move(playerID, this.turnNumber, this.colonizationsPerTurn);
+    let expandables = shuffle(this._getEmptyAdjacentCells(playerID));
+    let eIDs = expandables.map(c => c.id);
+    let moveCounter = this.colonizationsPerTurn;
+    let edgeCounter = 0;
+    // First try to expand off of existing islands.
+    while (moveCounter > 0 && edgeCounter < expandables.length && expandables.length > 0) {
+      move.addColony(expandables[edgeCounter++]);
+      --moveCounter;
+    }
+    // Next, try to add new islands.
+    if (moveCounter > 0 && emptyCells.length > 0) {
+      emptyCells = shuffle(emptyCells.filter(c => eIDs.indexOf(c.id) < 0));
+    }
+    let emptyCounter = 0;
+    while (moveCounter > 0 && emptyCounter < emptyCells.length && emptyCells.length > 0) {
+      move.addColony(emptyCells[emptyCounter++]);
+      --moveCounter;
+    }
+    return move;
+  }
+  logComputerMoves() {
+    let computerPlayers = this.players.filter(p => p.type == Player.COMPUTER);
+    if (!this.isCreator || computerPlayers.length == 0) {
+      return this;
+    }
+    for (let cp of computerPlayers) {
+      let move = this._autoMove(cp.playerID);
+      this.logMove(move);
+    }
+    return this;
+  }
   isReadyForNextTurn() {
     return (Object.keys(this.confirmedMoves).length == this.players.length);
-  }
-  addColony(cell) {
-    this.currentMove.addColony(cell);
-    return this;
-  }
-  removeColony(cell) {
-    this.currentMove.removeColony(cell);
-    return this;
-  }
-  addAntibiotic(cell) {
-    this.currentMove.addAntibiotic(cell);
-    return this;
-  }
-  removeAntibiotic(cell) {
-    this.currentMove.removeAntibiotic(cell);
-    return this;
   }
   getAvailableMove() {
     if (this.currentMove === null) {
@@ -213,6 +251,9 @@ class RoomState {
   freezeMove() {
     this.currentMove.setFrozen();
     this.confirmedMoves[this.playerID] = this.currentMove;
+    if (this.isCreator) {
+      this.logComputerMoves();
+    }
     return this;
   }
   isFrozen() {

@@ -2,11 +2,6 @@
 
 var BOARD_CELL_BORDER_WIDTH = 3;
 
-
-var EMPTY_COLOR = '#C4C4C4'; // '#C2B790';
-var COMPENTITION_COLOR = '#444444';
-var ANTIBIOTIC_COLOR = '#97F365';
-
 class BoardComponent extends Component {
   constructor(props) {
     super(props);
@@ -48,12 +43,10 @@ class BoardComponent extends Component {
    */
   adaptCellByOccupation(cell, props) {
     let occupier = this.state.roomState.players.filter(p => p.playerID == cell.occupation);
+    props.cellBGColor = EMPTY_COLOR;
     if (occupier.length == 1) {
       props.cellBGColor = occupier[0].color;
-    } else if (cell.occupation == CellState.ANTIBIOTIC) {
-      props.text = 'antibiotic';
-      props.cellBGColor = ANTIBIOTIC_COLOR;
-    } else if (cell.occupation == CellState.ANTIBIOTIC) {
+    } else if (cell.occupation == CellState.COMPETITION) {
       props.cellBGColor = COMPENTITION_COLOR;
     } else if (cell.occupation == CellState.NO_USER) {
       props.cellBGColor = EMPTY_COLOR;
@@ -120,7 +113,7 @@ class BoardComponent extends Component {
       currentMove.addAntibiotic(cell);
     }
     this.updateTrigger();
-    this.setState({ roomState: this.state.roomState.setCurrentMove(currentMove) });
+    this.setState({ roomState: this.state.roomState.setBasicProperty("currentMove", currentMove) });
   }
   render(props, state) {
     this.boardCellWidth = props.boardCellWidth;

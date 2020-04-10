@@ -5,9 +5,11 @@ class GamePlayComponent extends Component {
     super(props);
     this.onConnectionLost = this.onConnectionLost.bind(this);
     this.nextTurn = this.nextTurn.bind(this);
+    this.onKeyPressed = this.onKeyPressed.bind(this);
     this.endTurn = this.endTurn.bind(this);
     this.pingForPlayers = this.pingForPlayers.bind(this);
     this.messageCallback = this.messageCallback.bind(this);
+    this.canEndTurn = this.canEndTurn.bind(this);
     this.endTurnButton = this.endTurnButton.bind(this);
     this.adjustBoardCellWidth = this.adjustBoardCellWidth.bind(this);
     this.updateTrigger = () => this.setState({});
@@ -16,22 +18,31 @@ class GamePlayComponent extends Component {
     COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
     this.state.roomState = props.roomState;
     this.state.boardCellWidth = DEFAULT_BOARD_CELL_WIDTH;
+    document.addEventListener("keyup", this.onKeyPressed);
     this.pingForPlayers();
   }
   onConnectionLost() {
     console.log('Connection broke!');
-    this.setState({ roomState: this.state.roomState.setConnectionMessage('Connection broke!') });
+    this.setState({ roomState: this.state.roomState.setBasicProperty('connectionMessage', 'Connection broke!') });
   }
   nextTurn() {
     this.state.roomState.performMoves(() => this.movingOn(this.state.roomState));
     this.setState({});
   }
+  onKeyPressed(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      if (this.canEndTurn()) {
+        this.endTurn();
+      }
+    }
+  }
   endTurn() {
-    this.setState({ roomState: this.state.roomState.freezeMove() })
+    this.setState({ roomState: this.state.roomState.freezeMove() });
     this.pingForPlayers();
-    // if (TESTING) {
-    //   this.nextTurn();
-    // }
     this.movingOn(this.state.roomState);
   }
   pingForPlayers() {
@@ -53,6 +64,10 @@ class GamePlayComponent extends Component {
       });
     }
   }
+  canEndTurn() {
+    let availableMove = this.state.roomState.getAvailableMove();
+    return (availableMove == Move.NO_MOVE || availableMove == Move.ANTIBIOTIC) && availableMove != Move.GAME_OVER
+  }
   endTurnButton() {
     let availableMove = this.state.roomState.getAvailableMove();
     let enabled = false;
@@ -61,14 +76,14 @@ class GamePlayComponent extends Component {
       text = 'Game Over!';
     } else if (this.state.roomState.isFrozen()) {
       text = 'Waiting for everyone to finish.'
-    } else if (availableMove == Move.NO_MOVE && availableMove != Move.GAME_OVER) {
-      text = 'End Turn';
+    } else if (this.canEndTurn()) {
+      text = availableMove == Move.ANTIBIOTIC ? 'End Turn (or add antibiotic)' : 'End Turn';
       enabled = true;
     }
     return h('div', { style: { marginTop: '22px' } }, defaultButton(text, this.endTurn, enabled));
   }
   adjustBoardCellWidth(inputEvent) {
-    this.setState({ boardCellWidth: inputEvent.target.valueAsNumber});
+    this.setState({ boardCellWidth: inputEvent.target.valueAsNumber });
   }
   render(props, state) {
     if (state.roomState.isReadyForNextTurn()) {
@@ -76,7 +91,7 @@ class GamePlayComponent extends Component {
     }
     // TODO visually notify that the next turn has started
     return h('div', { id: 'GamePlayWrapper' },
-      h('div', { class: "slider"},
+      h('div', { class: "slider" },
         h('span', {}, 'Small'),
         h('input', { type: "range", min: 20, max: 100, value: state.boardCellWidth, onInput: this.adjustBoardCellWidth }),
         h('span', {}, 'Large')

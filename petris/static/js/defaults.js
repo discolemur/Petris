@@ -6,3 +6,8 @@ var MAX_PLAYERS = 10;
 var PING_TIMEOUT = 9 * 1000; // 9 seconds
 var ROOM_PING_FREQUENCY = 3 * 1000; // 3 seconds
 var GAME_PING_FREQUENCY = 5 * 1000; // 5 seconds
+
+
+var EMPTY_COLOR = '#C4C4C4'; // '#C2B790';
+var COMPENTITION_COLOR = '#444444';
+var ANTIBIOTIC_COLOR = '#97F365';

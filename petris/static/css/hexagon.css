@@ -1,7 +1,17 @@
 /* Hexagon (200px) taken from https://csshexagon.com/  Thank you so much! */
 /* All specific numbers (except rotations) are scalable, as defined in Hexagon.js */
 
+.hexCell {
+  pointer-events: none;
+  display: block;
+  position: absolute;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
+}
+
 .hexagon {
+  pointer-events: auto;
   position: relative;
   display: flex;
   justify-content: center;
@@ -40,13 +50,6 @@
 }
 .hexagon, .hexBottom, .hexTop {
   box-sizing: border-box;
-}
-.hexCell {
-  display: block;
-  position: absolute;
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10+ and Edge */
-  user-select: none; /* Standard syntax */
 }
 .rotateHex {
   -webkit-transform: rotate(-30deg);

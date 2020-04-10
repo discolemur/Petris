@@ -96,5 +96,16 @@ class Cell {
             (n) => (n !== null && (n.id > this.id && n.occupation == this.occupation))
         ).length;
     }
+    hasUnoccupiedNeighbor() {
+        for (let i = 0; i < 6; ++i) {
+            if (this.neighbors[i] !== null && this.neighbors[i].occupation == CellState.NO_USER) {
+                return true;
+            }
+        }
+        return false;
+    }
+    getUnoccupiedNeighbors() {
+        return this.neighbors.filter(n=>(n !== null && n.occupation == CellState.NO_USER));
+    }
 }
 

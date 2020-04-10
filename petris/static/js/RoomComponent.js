@@ -36,7 +36,7 @@ class RoomComponent extends Component {
       this.setState({ startFailed: true })
       return false;
     }
-    let roomState = this.state.roomState.setStarted(true);
+    let roomState = this.state.roomState.setBasicProperty('started', true);
     if (this.state.roomState.isCreator) {
       COMMUNICATOR.sendObject({ started: true });
     }
@@ -81,9 +81,9 @@ class RoomComponent extends Component {
       this.setState({
         roomState: this.state.roomState
           .setPlayers(msg.allPlayers)
-          .setBoardHeight(msg.boardHeight)
-          .setBoardWidth(msg.boardWidth)
-          .setColonizationsPerTurn(msg.colonizationsPerTurn)
+          .setBasicProperty('boardHeight', msg.boardHeight)
+          .setBasicProperty('boardWidth', msg.boardWidth)
+          .setBasicProperty('colonizationsPerTurn', msg.colonizationsPerTurn)
       });
     } else if (msg.started) {
       this.start();
@@ -98,13 +98,13 @@ class RoomComponent extends Component {
     );
   }
   adjustBoardHeight(inputEvent) {
-    this.setState({ roomState: this.state.roomState.setBoardHeight(inputEvent.target.valueAsNumber) });
+    this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', inputEvent.target.valueAsNumber) });
   }
   adjustBoardWidth(inputEvent) {
-    this.setState({ roomState: this.state.roomState.setBoardWidth(inputEvent.target.valueAsNumber) });
+    this.setState({ roomState: this.state.roomState.setBasicProperty('boardWidth', inputEvent.target.valueAsNumber) });
   }
   adjustColonizationsPerTurn(inputEvent) {
-    this.setState({ roomState: this.state.roomState.setColonizationsPerTurn(inputEvent.target.valueAsNumber) });
+    this.setState({ roomState: this.state.roomState.setBasicProperty('colonizationsPerTurn', inputEvent.target.valueAsNumber) });
   }
   estimateNumTurns() {
     return Math.floor((this.state.roomState.boardHeight * this.state.roomState.boardWidth)

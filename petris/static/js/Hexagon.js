@@ -9,6 +9,7 @@ class HexagonProps {
     this.cellBGColor = null;
     this.cellColor = '#000000';
     this.blinkBGColor = null;
+    this.blinkBorderColor = null;
     this.borderColor = null;
     this.hoverColor = null;
     this.hoverBGColor = null;
@@ -24,6 +25,8 @@ class Hexagon extends Component {
   constructor(props) {
     super(props);
     this.HEX_ID = uuidv4();
+    this._borderColor = this._borderColor.bind(this);
+    this._backgroundColor = this._backgroundColor.bind(this);
     this.HEX_STYLE = this.HEX_STYLE.bind(this);
     this._getTopBottomUnits = this._getTopBottomUnits.bind(this);
     this.HEX_TOP_STYLE = this.HEX_TOP_STYLE.bind(this);
@@ -31,21 +34,40 @@ class Hexagon extends Component {
     this.blinkUpdateTrigger = this.blinkUpdateTrigger.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.onClick = this.onClick.bind(this);
+    this.shouldBlink = this.shouldBlink.bind(this);
     this.blinkOn = true;
     this.blinking = false;
     this.setState({ hover: false });
   }
+  /**
+   * Hover gets priority over blink. If no hover or blink, this.style.borderColor.
+   */
+  _borderColor() {
+    let bColor = this.style.borderColor;
+    if (this.state.hover && this.style.hoverBorderColor !== null) {
+      bColor = this.style.hoverBorderColor;
+    } else if (this.style.blinkBorderColor !== null && this.blinkOn) {
+      bColor = this.style.blinkBorderColor;
+    }
+    return bColor;
+  }
+  _backgroundColor() {
+    let bgColor = this.style.cellBGColor;
+    if (this.state.hover && this.style.hoverBGColor !== null) {
+      bgColor = this.style.hoverBGColor;
+    } else if (this.style.blinkBGColor !== null && this.blinkOn) {
+     bgColor = this.style.blinkBGColor;
+    }
+    return bgColor;
+  }
   HEX_STYLE() {
     let height = 0.57735026 * this.style.cellWidth;
     let margin = 0.288675135 * this.style.cellWidth;
-    let bgcolor = (this.state.hover && this.style.hoverBGColor !== null) ? this.style.hoverBGColor : this.style.cellBGColor;
     let color = (this.state.hover && this.style.hoverColor !== null) ? this.style.hoverColor : this.style.cellColor;
-    if (this.style.blinkBGColor !== null && this.blinkOn) {
-      bgcolor = this.style.blinkBGColor;
-    }
-    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
+    let bColor = this._borderColor();
     return {
-      backgroundColor: bgcolor,
+      backgroundColor: this._backgroundColor(),
       color: color,
       height: `${height}px`,
       marginTop: `${margin}px`,
@@ -66,7 +88,7 @@ class Hexagon extends Component {
   }
   HEX_TOP_STYLE() {
     let basicUnits = this._getTopBottomUnits();
-    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
+    let bColor = this._borderColor();
     return {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
@@ -78,7 +100,7 @@ class Hexagon extends Component {
   }
   HEX_BOTTOM_STYLE() {
     let basicUnits = this._getTopBottomUnits();
-    let bColor = (this.state.hover && this.style.hoverBorderColor !== null) ? this.style.hoverBorderColor : this.style.borderColor;
+    let bColor = this._borderColor();
     return {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
@@ -116,13 +138,23 @@ class Hexagon extends Component {
       this.setState({ hover: false });
     }
   }
+  onClick(e) {
+    if (this.style.onClick !== null) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.style.onClick();
+    }
+  }
+  shouldBlink() {
+    return this.style.blinkBGColor !== null || this.style.blinkBorderColor !== null;
+  }
   render(props, state) {
     this.style = props.styleParams;
-    if (this.style.blinkBGColor !== null && !this.blinking) {
+    if (this.shouldBlink() && !this.blinking) {
       this.blinking = true;
       this.blinkUpdateTrigger();
     }
-    if (!this.style.blinkBGColor) {
+    if (!this.shouldBlink()) {
       this.blinking = false;
     }
     let left = this.style.left * this.style.cellWidth;
@@ -140,9 +172,9 @@ class Hexagon extends Component {
     }
     let fontSize = this.style.fontSize ? `${this.style.fontSize}px` : `${this.style.cellWidth / 6}px`;
     return h('div', { class: classes, style: positionStyle },
-      h('div', { id: this.HEX_ID, class: 'hexagon', style: this.HEX_STYLE(), onClick: this.style.onClick },
-        h('div', { class: "hexTop", style: this.HEX_TOP_STYLE() }),
-        h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE(), onClick: this.style.onClick }),
+      h('div', { id: this.HEX_ID, class: 'hexagon', style: this.HEX_STYLE(), onClick: this.onClick },
+        h('div', { class: "hexTop", style: this.HEX_TOP_STYLE(), onClick: this.onClick }),
+        h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE(), onClick: this.onClick }),
         h('span', { style: { fontSize: fontSize } }, this.style.text)
       )
     )

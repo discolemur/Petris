@@ -45,6 +45,9 @@ body,
 #BannerScores span {
   font-size: 2rem;
 }
+#BannerScores .hexagon span {
+  font-weight: 900;
+}
 #Welcome,
 #Room {
   height: 100%;

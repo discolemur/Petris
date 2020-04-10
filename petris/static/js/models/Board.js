@@ -207,14 +207,4 @@ class Board {
         }
         return players;
     }
-    /**
-     * Prepares cells for colonization by removing antibiotics from the previous round.
-     */
-    prepareForColonization() {
-        for (let cell of this.getCells()) {
-            if (cell.occupation == CellState.ANTIBIOTIC) {
-                cell.occupation = CellState.NO_USER;
-            }
-        }
-    }
 }
