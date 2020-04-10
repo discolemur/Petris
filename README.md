@@ -1,5 +1,7 @@
 # Petris
 
+<a href="http://www.discolemur.info/petris">Play online</a>
+
 Disclaimer: This game was created by people at Washington University in St. Louis. Since I played it at a professional retreat, and the instruction paper did not contain any author, I cannot attribute it to anyone specifically. I am copying this in electronic form in good faith, assuming there is no copyright on the material.
 
 **Description (of the board game version):**
