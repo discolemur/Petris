@@ -36,6 +36,11 @@ class Communicator {
         console.log('Connecting...');
         this.client.connect(options);
     }
+    disconnect() {
+        if (this.client.isConnected()) {
+            this.client.disconnect();
+        }
+    }
     setOnConnectionLost(onConnectionLost) {
         this.client.onConnectionLost = onConnectionLost;
     }

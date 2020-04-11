@@ -19,6 +19,10 @@ class Player {
     this.type = Player.COMPUTER;
     return this;
   }
+  clearScore() {
+    this.score = 0;
+    return this;
+  }
 }
 Player.NO_COLOR = '#AAAAAA';
 Player.COLOR_LIST = [

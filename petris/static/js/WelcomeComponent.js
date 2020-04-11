@@ -2,6 +2,7 @@
 
 // This is how long to wait for a response before assuming the room is empty.
 var TIME_UNTIL_CREATE = 1000;
+var JOIN_ROOM_TIMEOUT = 1000;
 
 /**
  * Prompts until it asks which room you want to join or create.
@@ -26,7 +27,18 @@ class WelcomeComponent extends Component {
     this.join = this.join.bind(this);
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.setOption = (opt) => this.setState({ 'option': opt });
-    this.movingOn = props.movingOn;
+    this.moveOn = () => {
+      this.setState({ checkingRoom: false });
+      props.movingOn(this.state.roomState);
+    };
+    this.resetState = () => {
+      this.setState({
+        option: null,
+        checkingRoom: false,
+        roomState: this.state.roomState.reset(),
+        howTo: false
+      });
+    }
     this.setState({
       option: null,
       checkingRoom: false,
@@ -103,24 +115,34 @@ class WelcomeComponent extends Component {
     } else {
       this.canJoin = false;
       COMMUNICATOR.sendObject({ requestToJoin: true });
+      setTimeout(() => {
+        this.joinIfRoomNotActive();
+        this.setState({ checkingRoom: false });
+      }, JOIN_ROOM_TIMEOUT);
     }
   }
   joinIfRoomNotActive() {
+    if (!this.state.checkingRoom) {
+      return;
+    }
     if (this.canJoin) {
       COMMUNICATOR.sendObject({
         joined: true,
         player: new Player(this.state.roomState.playerID, this.state.roomState.playerName)
       });
-      let roomState = this.state.roomState.setBasicProperty('joined', true);
-      this.movingOn(roomState);
+      this.state.roomState = this.state.roomState.setBasicProperty('joined', true);
+      this.moveOn();
     } else {
-      this.setState({ roomState: this.state.roomState.setBasicProperty('connectionMessage', `Could not connect to room "${this.state.roomState.roomName}".`) });
+      COMMUNICATOR.disconnect();
+      this.setState({
+        roomState: this.state.roomState.setBasicProperty('connectionMessage', `Room "${this.state.roomState.roomName}" is not available.`)
+      });
     }
   }
   createIfRoomEmpty() {
     if (this.canCreate) {
-      let roomState = this.state.roomState.setBasicProperty('joined', true);
-      this.movingOn(roomState);
+      this.state.roomState = this.state.roomState.setBasicProperty('joined', true);
+      this.moveOn();
     } else {
       this.setState({ roomState: this.state.roomState.setBasicProperty('connectionMessage', `Could not create room "${this.state.roomState.roomName}".`) });
     }
@@ -146,13 +168,16 @@ class WelcomeComponent extends Component {
       h('div', { style: { display: 'block', height: '0.4em' } }),
       defaultButton('Join Room', () => this.setOption('join'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      h('div', { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
+      h('div', { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', width: '100%' } },
         h('div', { class: 'btn', onClick: () => this.setState({ howTo: true }) }, 'Learn to Play'),
         h('a', { class: 'btn', href: 'https://github.com/discolemur/Petris' }, 'View on GitHub')
       )
     )
   }
   create() {
+    let backProps = defaultButtonProps('Back', this.resetState, true);
+    let createProps = defaultButtonProps('Create Room', () => this.connectToRoom(true), true);
+    createProps.spinning = this.state.checkingRoom;
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),
       h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
@@ -164,14 +189,15 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: 'sideBySide' },
-        defaultButton('Back', () => this.setState({ option: null }), true),
-        h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-          defaultButton('Create Room', () => this.connectToRoom(true), true)
-        )
+        h(Hexagon, { styleParams: backProps }),
+        h(Hexagon, { styleParams: createProps })
       )
     )
   }
   join() {
+    let backProps = defaultButtonProps('Back', this.resetState, true);
+    let joinProps = defaultButtonProps('Join Room', () => this.connectToRoom(false), true);
+    joinProps.spinning = this.state.checkingRoom;
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),
       h('div', { class: 'columnItem textItem noBorder' }, 'Your Name'),
@@ -183,10 +209,8 @@ class WelcomeComponent extends Component {
       h('input', { class: 'columnItem', type: 'text', onInput: (txt) => this.updateRoom(txt), value: this.state.roomState.roomName }),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { class: 'sideBySide' },
-        defaultButton('Back', () => this.setState({ option: null }), true),
-        h('div', { class: this.state.checkingRoom ? 'spinner' : 'default' },
-          defaultButton('Join Room', () => this.connectToRoom(false), true)
-        )
+        h(Hexagon, { styleParams: backProps }),
+        h(Hexagon, { styleParams: joinProps })
       )
     )
   }

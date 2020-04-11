@@ -28,25 +28,12 @@ function shuffle(a) {
 
 class RoomState {
   constructor() {
-    this.players = [];
-    this.confirmedMoves = {};
-    this.playerName = null;
-    this.roomName = null;
-    this.started = false;
-    this.isCreator = false;
-    this.joined = false;
-    this.connectionMessage = null;
     this.playerID = uuidv4();
-    this.onlyTesting = false;
-    this.currentMove = null;
-    this.turnNumber = 1;
-    this.board = null;
-    this.boardHeight = DEFAULT_BOARD_HEIGHT;
-    this.boardWidth = DEFAULT_BOARD_WIDTH;
-    this.colonizationsPerTurn = DEFAULT_COLONIZATIONS_PER_TURN;
+    this.reset();
   }
   reset() {
     this.players = [];
+    this.confirmedMoves = {};
     this.playerName = null;
     this.roomName = null;
     this.started = false;
@@ -84,9 +71,25 @@ class RoomState {
     this.joined = true;
     this.connectionMessage = null;
     this.playerID = p1.playerID;
-    this.onlyTesting = true;
     this.boardHeight = 5;
     this.boardWidth = 5;
+    return this;
+  }
+  getGameProps() {
+    return {
+      boardHeight: this.boardHeight,
+      boardWidth: this.boardWidth,
+      colonizationsPerTurn: this.colonizationsPerTurn,
+      players: this.players,
+      started: this.started
+    }
+  }
+  setGameProps(props) {
+    this.boardHeight = props.boardHeight;
+    this.boardWidth = props.boardWidth;
+    this.colonizationsPerTurn = props.colonizationsPerTurn;
+    this.started = props.started;
+    this.setPlayers(props.players);
     return this;
   }
   _removeDuplicates(arr, idKey) {
@@ -145,6 +148,7 @@ class RoomState {
   }
   newBoard() {
     this.board = new Board(this.boardWidth, this.boardHeight);
+    this.players = this.players.map(p=>p.clearScore());
     this.clearMoves();
     return this;
   }
@@ -251,6 +255,12 @@ class RoomState {
     }
     return am;
   }
+  getNumAvailableMoves() {
+    if (this.currentMove != null) {
+      return this.colonizationsPerTurn - this.currentMove.colonies.length;
+    }
+    return this.colonizationsPerTurn;
+  }
   freezeMove() {
     this.currentMove.setFrozen();
     this.confirmedMoves[this.playerID] = this.currentMove;
@@ -264,6 +274,9 @@ class RoomState {
       return true;
     }
     return false;
+  }
+  getPlayerColor(pID) {
+    return this.players.filter(p=>p.playerID == pID)[0].color;
   }
   dropUnresponsivePlayers() {
     // Only drop players if the game hasn't started yet.

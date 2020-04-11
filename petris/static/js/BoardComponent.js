@@ -43,13 +43,13 @@ class BoardComponent extends Component {
    */
   adaptCellByOccupation(cell, props) {
     let occupier = this.state.roomState.players.filter(p => p.playerID == cell.occupation);
-    props.cellBGColor = EMPTY_COLOR;
+    props.BGColor = EMPTY_COLOR;
     if (occupier.length == 1) {
-      props.cellBGColor = occupier[0].color;
+      props.BGColor = occupier[0].color;
     } else if (cell.occupation == CellState.COMPETITION) {
-      props.cellBGColor = COMPENTITION_COLOR;
+      props.BGColor = COMPENTITION_COLOR;
     } else if (cell.occupation == CellState.NO_USER) {
-      props.cellBGColor = EMPTY_COLOR;
+      props.BGColor = EMPTY_COLOR;
     }
     return props;
   }
@@ -87,7 +87,7 @@ class BoardComponent extends Component {
     props.onClick = onClick;
     props.left = left;
     props.top = top;
-    props.cellWidth = this.boardCellWidth;
+    props.hexWidth = this.boardHexWidth;
     props.borderWidth = BOARD_CELL_BORDER_WIDTH;
     props.borderColor = '#4C4C4C';
     props.flatTop = true;
@@ -106,20 +106,27 @@ class BoardComponent extends Component {
     let currentMove = this.state.roomState.currentMove;
     let cellsMove = currentMove.cellHasMove(cell);
     let availableMove = this.state.roomState.currentMove.getAvailableMove();
+    let changed = false;
     if (cellsMove == Move.ANTIBIOTIC) {
       currentMove.removeAntibiotic(cell);
+      changed = true;
     } else if (cellsMove == Move.COLONY) {
       currentMove.removeColony(cell);
+      changed = true;
     } else if (availableMove == Move.COLONY) {
       currentMove.addColony(cell);
+      changed = true;
     } else if (availableMove == Move.ANTIBIOTIC) {
       currentMove.addAntibiotic(cell);
+      changed = true;
     }
-    this.updateTrigger();
-    this.setState({ roomState: this.state.roomState.setBasicProperty("currentMove", currentMove) });
+    if (changed) {
+      this.updateTrigger();
+      this.setState({ roomState: this.state.roomState.setBasicProperty("currentMove", currentMove) });
+    }
   }
   render(props, state) {
-    this.boardCellWidth = props.boardCellWidth;
+    this.boardHexWidth = props.boardHexWidth;
     let cells = state.roomState.board.getCells();
     let minX = Math.min.apply(null, cells.map(c => c.center[0]));
     let maxX = Math.max.apply(null, cells.map(c => c.center[0]));
@@ -128,8 +135,8 @@ class BoardComponent extends Component {
     return h('div', {
       id: 'Board',
       style: {
-        height: `${(maxY - minY + 2) * this.boardCellWidth}px`,
-        width: `${(maxX - minX + 2) * this.boardCellWidth}px`
+        height: `${(maxY - minY + 2) * this.boardHexWidth}px`,
+        width: `${(maxX - minX + 2) * this.boardHexWidth}px`
       }
     },
       cells.map(c => this.boardCell(

@@ -17,10 +17,11 @@ class RoomComponent extends Component {
     this.sliders = this.sliders.bind(this);
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.movingOn = props.movingOn;
+    this.state.roomState = props.roomState;
+    this.state.startFailed = false;
     if (props.roomState.isCreator) {
       this.pingForPlayers();
     }
-    this.setState({ roomState: props.roomState, startFailed: false });
   }
   pingForPlayers() {
     setTimeout(() => {
@@ -29,7 +30,7 @@ class RoomComponent extends Component {
         this.setState({ roomState: this.state.roomState.dropUnresponsivePlayers() });
       }
     }, ROOM_PING_FREQUENCY);
-    COMMUNICATOR.sendObject({ ping: true });
+    COMMUNICATOR.sendObject({ ping: true, gameProps: this.state.roomState.getGameProps() });
   }
   start() {
     if (this.state.roomState.players.length < 2) {
@@ -38,55 +39,36 @@ class RoomComponent extends Component {
     }
     let roomState = this.state.roomState.setBasicProperty('started', true);
     if (this.state.roomState.isCreator) {
-      COMMUNICATOR.sendObject({ started: true });
+      COMMUNICATOR.sendObject({ started: true, gameProps: this.state.roomState.getGameProps() });
     }
     this.setState({ roomState: roomState });
     this.movingOn(roomState);
   }
   messageCallback(msg) {
     if (msg.pong) {
-      let roomState = this.state.roomState;
-      roomState.setLatestPing(msg.playerID);
-      this.setState({ roomState: roomState });
-      if (this.state.roomState.isCreator) {
-        COMMUNICATOR.sendObject({
-          allPlayers: this.state.roomState.players,
-          boardHeight: this.state.roomState.boardHeight,
-          boardWidth: this.state.roomState.boardWidth,
-          colonizationsPerTurn: this.state.roomState.colonizationsPerTurn
-        });
-      }
+      this.setState({ roomState: this.state.roomState.setLatestPing(msg.playerID) });
+      return;
     }
     if (msg.playerID === this.state.roomState.playerID) {
-      return false;
+      return;
     }
     if (msg.requestToJoin
-      && this.state.roomState.isCreator
-      && this.state.roomState.players.length < MAX_PLAYERS) {
-      COMMUNICATOR.sendObject({ canJoin: true });
+      && this.state.roomState.isCreator) {
+      COMMUNICATOR.sendObject({ canJoin: !this.state.roomState.started && this.state.roomState.players.length < MAX_PLAYERS });
     }
     if (msg.joined && this.state.roomState.isCreator) {
       let player = msg.player;
       if (this.state.roomState.players.indexOf(player.playerID) == -1) {
         this.setState({ roomState: this.state.roomState.addPlayer(player) });
         COMMUNICATOR.sendObject({
-          allPlayers: this.state.roomState.players,
-          boardHeight: this.state.roomState.boardHeight,
-          boardWidth: this.state.roomState.boardWidth,
-          colonizationsPerTurn: this.state.roomState.colonizationsPerTurn
+          gameProps: this.state.roomState.getGameProps()
         });
       }
     }
-    if (msg.allPlayers !== undefined) {
+    if (msg.gameProps) {
       this.setState({
-        roomState: this.state.roomState
-          .setPlayers(msg.allPlayers)
-          .setBasicProperty('boardHeight', msg.boardHeight)
-          .setBasicProperty('boardWidth', msg.boardWidth)
-          .setBasicProperty('colonizationsPerTurn', msg.colonizationsPerTurn)
+        roomState: this.state.roomState.setGameProps(msg.gameProps)
       });
-    } else if (msg.started) {
-      this.start();
     }
   }
   playerList() {
@@ -127,11 +109,15 @@ class RoomComponent extends Component {
       h('span', {}, '10')
     ),
     h('span', { style: { textAlign: 'center', marginTop: '10px', marginBottom: '10px' } }, `Expected number of turns to complete game with ${Math.max.apply(null, [2, this.state.roomState.players.length])} players: ${this.estimateNumTurns()} turns`)
-  ]
+    ]
   }
   render(props, state) {
+    console.log(state);
     if (state.roomState.players.length > 1 && state.startFailed) {
       this.setState({ startFailed: false });
+    }
+    if (state.roomState.started) {
+      this.start();
     }
     return (
       h('div', { id: 'Room' },

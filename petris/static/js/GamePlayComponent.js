@@ -10,16 +10,19 @@ class GamePlayComponent extends Component {
     this.pingForPlayers = this.pingForPlayers.bind(this);
     this.messageCallback = this.messageCallback.bind(this);
     this.canEndTurn = this.canEndTurn.bind(this);
-    this.endTurnButton = this.endTurnButton.bind(this);
-    this.adjustBoardCellWidth = this.adjustBoardCellWidth.bind(this);
+    this.gamePlayButton = this.gamePlayButton.bind(this);
+    this.adjustBoardHexWidth = this.adjustBoardHexWidth.bind(this);
+    this.goHome = this.goHome.bind(this);
+    this.clearBoard = this.clearBoard.bind(this);
     this.updateTrigger = () => this.setState({});
     this.movingOn = props.movingOn;
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
     this.state.roomState = props.roomState;
-    this.state.boardCellWidth = DEFAULT_BOARD_CELL_WIDTH;
+    this.state.boardHexWidth = DEFAULT_BOARD_CELL_WIDTH;
     document.addEventListener("keyup", this.onKeyPressed);
     this.pingForPlayers();
+    this.state.rotatedBtn = false;
   }
   onConnectionLost() {
     console.log('Connection broke!');
@@ -62,42 +65,68 @@ class GamePlayComponent extends Component {
       this.setState({
         roomState: this.state.roomState.setLatestPing(msg.playerID).logMove(msg.move)
       });
+    } else if (msg.clearBoard) {
+      this.setState({ roomState: this.state.roomState.newBoard() });
+      this.movingOn(this.state.roomState);
     }
   }
   canEndTurn() {
     let availableMove = this.state.roomState.getAvailableMove();
     return (availableMove == Move.NO_MOVE || availableMove == Move.ANTIBIOTIC) && availableMove != Move.GAME_OVER
   }
-  endTurnButton() {
+  gamePlayButton() {
     let availableMove = this.state.roomState.getAvailableMove();
+    let numAvailableMoves = this.state.roomState.getNumAvailableMoves();
     let enabled = false;
-    let text = 'Select Cells';
+    let text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
     if (availableMove == Move.GAME_OVER) {
       text = 'Game Over!';
     } else if (this.state.roomState.isFrozen()) {
       text = 'Waiting for everyone to finish.'
     } else if (this.canEndTurn()) {
-      text = availableMove == Move.ANTIBIOTIC ? 'End Turn (or add antibiotic)' : 'End Turn';
+      text = availableMove == Move.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
       enabled = true;
     }
-    return h('div', { style: { marginTop: '22px' } }, defaultButton(text, this.endTurn, enabled));
+    let btnProps = defaultButtonProps(text, this.endTurn, enabled);
+    if (!enabled) {
+      btnProps.BGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
+    } else {
+      btnProps.blinkBGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
+    }
+    this.state.rotatedBtn = !this.state.rotatedBtn;
+    btnProps.flatTop = this.state.rotatedBtn;
+    btnProps.transitionAll = true;
+    return h('div', { style: { width: btnProps.hexWidth } }, h(Hexagon, { styleParams: btnProps }));
   }
-  adjustBoardCellWidth(inputEvent) {
-    this.setState({ boardCellWidth: inputEvent.target.valueAsNumber });
+  adjustBoardHexWidth(inputEvent) {
+    this.setState({ boardHexWidth: inputEvent.target.valueAsNumber });
+  }
+  clearBoard() {
+    COMMUNICATOR.sendObject({ clearBoard: true });
+    this.setState({ roomState: this.state.roomState.newBoard() });
+    this.movingOn(this.state.roomState);
+  }
+  goHome() {
+    this.setState({ roomState: this.state.roomState.reset() });
   }
   render(props, state) {
     if (state.roomState.isReadyForNextTurn()) {
       this.nextTurn();
     }
+    let availableMove = this.state.roomState.getAvailableMove();
     // TODO visually notify that the next turn has started
     return h('div', { id: 'GamePlayWrapper' },
       h('div', { class: "slider" },
         h('span', {}, 'Small'),
-        h('input', { type: "range", min: 20, max: 100, value: state.boardCellWidth, onInput: this.adjustBoardCellWidth }),
+        h('input', { type: "range", min: 20, max: 100, value: state.boardHexWidth, onInput: this.adjustBoardHexWidth }),
         h('span', {}, 'Large')
       ),
-      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, boardCellWidth: state.boardCellWidth }),
-      this.endTurnButton()
+      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, boardHexWidth: state.boardHexWidth }),
+      h('div', { style: { width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
+        availableMove == Move.GAME_OVER ? defaultButton('Return to Home', this.goHome, true) : null,
+        this.gamePlayButton(),
+        availableMove == Move.GAME_OVER && state.roomState.isCreator ? defaultButton('Clear Board', this.clearBoard, true) : null
+      )
     )
   }
 }
