@@ -73,12 +73,23 @@ class RoomComponent extends Component {
     }
   }
   playerList() {
-    return this.state.roomState.players.map(player =>
-      h('div', {
-        class: 'columnItem textItem',
-        style: `border: ${player.color}; border-style: solid; border-width: 0.25em;`
-      }, player.type == Player.HUMAN ? player.playerName : 'Computer Player')
-    );
+    let hexWidth = 100;
+    let playerHexagons = [];
+    for (let i = 0; i < this.state.roomState.players.length; ++i) {
+      let player = this.state.roomState.players[i];
+      let hexProps = new HexagonProps();
+      hexProps.text = player.type == Player.HUMAN ? player.playerName : 'Computer Player';
+      hexProps.color = '#FFF';
+      hexProps.BGColor = player.color;
+      hexProps.hexWidth = hexWidth;
+      hexProps.position = 'absolute';
+      hexProps.top = (i % 2) * 0.86;
+      hexProps.left = i / 2;
+      playerHexagons.push(h(Hexagon, { styleParams: hexProps }));
+    }
+    let totalWidth = ((this.state.roomState.players.length + 1) / 2) * hexWidth;
+    let totalHeight = 2 * hexWidth;
+    return h('div', {style: { height: `${totalHeight}px`, width: `${totalWidth}px`, display: 'block', position: 'relative' } }, playerHexagons);
   }
   adjustBoardHeight(inputEvent) {
     this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', inputEvent.target.valueAsNumber) });

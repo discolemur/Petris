@@ -5,7 +5,7 @@ class HexagonProps {
     this.text = null;
     this.fontSize = null;
     this.hexWidth = null;
-    this.borderWidth = null;
+    this.borderWidth = 0;
     this.BGColor = null;
     this.color = '#000000';
     this.blinkBGColor = null;
@@ -20,6 +20,7 @@ class HexagonProps {
     this.flatTop = false; // Whether to rotate the hexagon to flat side up.
     this.transitionAll = false;
     this.spinning = false;
+    this.position = null;
   }
 }
 
@@ -67,17 +68,23 @@ class Hexagon extends Component {
     let height = 0.57735026 * this.style.hexWidth;
     let margin = 0.288675135 * this.style.hexWidth;
     let bColor = this._borderColor();
-    return {
+    let rv = {
       backgroundColor: this._backgroundColor(),
       height: `${height}px`,
       marginTop: `${margin}px`,
       marginBottom: `${margin}px`,
       width: this.style.hexWidth,
       marginLeft: 'auto',
-      marginRight: 'auto',
-      borderLeft: `solid ${this.style.borderWidth}px ${bColor}`,
-      borderRight: `solid ${this.style.borderWidth}px ${bColor}`,
+      marginRight: 'auto'
+
+    };
+    if (this.style.borderWidth !== null && this.style.borderWidth > 0) {
+      rv.borderLeft = `solid ${this.style.borderWidth}px ${bColor}`;
+      rv.borderRight = `solid ${this.style.borderWidth}px ${bColor}`;
+    } else {
+      rv.border = 'none';
     }
+    return rv;
   }
   _getTopBottomUnits() {
     let offset = this.style.hexWidth * 0.35355339059;
@@ -89,26 +96,36 @@ class Hexagon extends Component {
   HEX_TOP_STYLE() {
     let basicUnits = this._getTopBottomUnits();
     let bColor = this._borderColor();
-    return {
+    let rv = {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
       height: `${basicUnits.boxSide}px`,
-      top: `-${basicUnits.offset}px`,
-      borderTop: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`,
-      borderRight: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`
+      top: `-${basicUnits.offset}px`
+    };
+    if (this.style.borderWidth !== null && this.style.borderWidth > 0) {
+      rv.borderTop = `solid ${this.style.borderWidth * 1.414214}px ${bColor}`;
+      rv.borderRight = `solid ${this.style.borderWidth * 1.414214}px ${bColor}`;
+    } else {
+      rv.border = 'none';
     }
+    return rv;
   }
   HEX_BOTTOM_STYLE() {
     let basicUnits = this._getTopBottomUnits();
     let bColor = this._borderColor();
-    return {
+    let rv = {
       left: `${basicUnits.left}px`,
       width: `${basicUnits.boxSide}px`,
       height: `${basicUnits.boxSide}px`,
-      bottom: `-${basicUnits.offset}px`,
-      borderBottom: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`,
-      borderLeft: `solid ${this.style.borderWidth * 1.414214}px ${bColor}`
+      bottom: `-${basicUnits.offset}px`
+    };
+    if (this.style.borderWidth !== null && this.style.borderWidth > 0) {
+      rv.borderBottom = `solid ${this.style.borderWidth * 1.414214}px ${bColor}`;
+      rv.borderLeft = `solid ${this.style.borderWidth * 1.414214}px ${bColor}`;
+    } else {
+      rv.border = 'none';
     }
+    return rv;
   }
   componentDidMount() {
     document.addEventListener('mouseenter', this.onMouseEnter, true);

@@ -52,6 +52,7 @@
 }
 .innerHexWrapper span {
   text-align: center;
+  width: 90%;
 }
 .hexTop:after {
   background-position: center top;
