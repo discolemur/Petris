@@ -49,13 +49,13 @@ class RoomState {
     return this;
   }
   dummyTest() {
-    let p1 = new Player('nick', 'nick');
-    let p2 = new Player('andrew', 'andrew').setIsComputer();
-    let p3 = new Player('ryan', 'ryan').setIsComputer();
-    let p4 = new Player('jacob', 'jacob').setIsComputer();
-    let p5 = new Player('jessica', 'jessica').setIsComputer();
-    let p6 = new Player('rebecca', 'rebecca').setIsComputer();
-    let p7 = new Player('sydney', 'sydney').setIsComputer();
+    let p1 = new Player('nick');
+    let p2 = new Player('andrew').setIsComputer();
+    let p3 = new Player('ryan').setIsComputer();
+    let p4 = new Player('jacob').setIsComputer();
+    let p5 = new Player('jessica').setIsComputer();
+    let p6 = new Player('rebecca').setIsComputer();
+    let p7 = new Player('sydney').setIsComputer();
     p1.color = Player.COLOR_LIST[0];
     p2.color = Player.COLOR_LIST[1];
     p3.color = Player.COLOR_LIST[2];
@@ -129,6 +129,26 @@ class RoomState {
     this.players = this.players.filter(p => p.playerID != pID)
     return this;
   }
+  addComputer() {
+    if (this.players.length < MAX_PLAYERS) {
+      let p = new Player(shuffle(COMPUTER_PLAYER_NAMES)[0]);
+      p.setIsComputer();
+      this.addPlayer(p);
+    }
+    return this;
+  }
+  removeComputer() {
+    for (let i = 0; i < this.players.length; ++i) {
+      if (this.players[i].type == Player.COMPUTER) {
+        this.dropPlayer(this.players[i].playerID);
+        break;
+      }
+    }
+    return this;
+  }
+  hasComputer() {
+    return this.players.filter(p=>p.type == Player.COMPUTER).length > 0;
+  }
   /**
    * Attribute may be any key of RoomState objects.
    * Ensures that the attribute is a valid key.
@@ -148,7 +168,7 @@ class RoomState {
   }
   newBoard() {
     this.board = new Board(this.boardWidth, this.boardHeight);
-    this.players = this.players.map(p=>p.clearScore());
+    this.players = this.players.map(p => p.clearScore());
     this.clearMoves();
     return this;
   }
@@ -276,13 +296,13 @@ class RoomState {
     return false;
   }
   getPlayerColor(pID) {
-    return this.players.filter(p=>p.playerID == pID)[0].color;
+    return this.players.filter(p => p.playerID == pID)[0].color;
   }
   dropUnresponsivePlayers() {
     // Only drop players if the game hasn't started yet.
     if (this.isCreator && !this.started) {
       for (let p of this.players) {
-        if (p.playerID == this.playerID) {
+        if (p.playerID == this.playerID || p.type == Player.COMPUTER) {
           continue;
         }
         if (new Date().getTime() - p.latestPing > PING_TIMEOUT) {

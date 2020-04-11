@@ -7,11 +7,11 @@ class HowToComponent extends Component {
         this.next = this.next.bind(this);
         this.return = props.return;
         this.helpImgs = [
-            '/petris/static/img/examples/1.png',
-            '/petris/static/img/examples/2.png',
-            '/petris/static/img/examples/3.png',
-            '/petris/static/img/examples/4.png',
-            '/petris/static/img/examples/5.png',
+            // '/petris/static/img/examples/1.png',
+            // '/petris/static/img/examples/2.png',
+            // '/petris/static/img/examples/3.png',
+            // '/petris/static/img/examples/4.png',
+            // '/petris/static/img/examples/5.png',
             '/petris/static/img/examples/6.png',
             '/petris/static/img/examples/7.png',
             '/petris/static/img/examples/8.png',

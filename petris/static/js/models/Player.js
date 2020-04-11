@@ -7,13 +7,17 @@
  * latestPing
  */
 class Player {
-  constructor(playerID, playerName) {
-    this.playerID = playerID;
+  constructor(playerName) {
+    this.playerID = uuidv4();
     this.playerName = playerName;
     this.color = Player.NO_COLOR;
     this.score = 0;
     this.latestPing = new Date().getTime();
     this.type = Player.HUMAN;
+  }
+  setPlayerID(pID) {
+    this.playerID = pID;
+    return this;
   }
   setIsComputer() {
     this.type = Player.COMPUTER;

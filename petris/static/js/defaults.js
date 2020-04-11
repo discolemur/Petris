@@ -25,3 +25,22 @@ var MAX_PLAYERS = 10;
 var EMPTY_COLOR = '#C4C4C4'; // '#C2B790';
 var COMPENTITION_COLOR = '#222';
 var ANTIBIOTIC_COLOR = '#97F365';
+
+/**
+ * Random
+ */
+var COMPUTER_PLAYER_NAMES = [
+    'Escherichia',
+    'Aeromonas',
+    'Brucella',
+    'Haemophilus',
+    'Klebsiella',
+    'Bacillus',
+    'Staph',
+    'Clostridium',
+    'Veillonella',
+    'Listeria',
+    'Clostridium',
+    'Moraxella',
+    'Proteus'
+]

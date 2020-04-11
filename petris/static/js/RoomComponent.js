@@ -15,6 +15,7 @@ class RoomComponent extends Component {
     this.adjustColonizationsPerTurn = this.adjustColonizationsPerTurn.bind(this);
     this.estimateNumTurns = this.estimateNumTurns.bind(this);
     this.sliders = this.sliders.bind(this);
+    this.computerButtons = this.computerButtons.bind(this);
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.movingOn = props.movingOn;
     this.state.roomState = props.roomState;
@@ -76,7 +77,7 @@ class RoomComponent extends Component {
       h('div', {
         class: 'columnItem textItem',
         style: `border: ${player.color}; border-style: solid; border-width: 0.25em;`
-      }, player.playerName)
+      }, player.type == Player.HUMAN ? player.playerName : 'Computer Player')
     );
   }
   adjustBoardHeight(inputEvent) {
@@ -111,8 +112,24 @@ class RoomComponent extends Component {
     h('span', { style: { textAlign: 'center', marginTop: '10px', marginBottom: '10px' } }, `Expected number of turns to complete game with ${Math.max.apply(null, [2, this.state.roomState.players.length])} players: ${this.estimateNumTurns()} turns`)
     ]
   }
+  computerButtons() {
+    let addCompBtnProps = defaultButtonProps('Add Computer Player', () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
+    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
+    addCompBtnProps.hexWidth = 75;
+    removeCompBtnProps.hexWidth = 75;
+    return h('div', {
+      style: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center'
+      }
+    },
+      this.state.roomState.hasComputer() ? h(Hexagon, { styleParams: removeCompBtnProps }) : null,
+      this.state.roomState.players.length < MAX_PLAYERS ? h(Hexagon, { styleParams: addCompBtnProps }) : null
+    );
+  }
   render(props, state) {
-    console.log(state);
     if (state.roomState.players.length > 1 && state.startFailed) {
       this.setState({ startFailed: false });
     }
@@ -126,6 +143,7 @@ class RoomComponent extends Component {
           h('div', { class: 'columnItem textItem noBorder' }, 'Players'),
           state.startFailed ? h('div', { class: 'columnItem textItem noBorder errormsg' }, 'To start, your room needs at least two people.') : null,
           this.playerList(),
+          state.roomState.isCreator ? this.computerButtons() : null,
           state.roomState.isCreator ? this.sliders() : null,
           state.roomState.isCreator ? defaultButton('Start Game', this.start, true)
             : h('div', { class: 'columnItem' }, 'Waiting for the host to start the game.')

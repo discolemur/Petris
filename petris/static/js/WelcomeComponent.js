@@ -99,7 +99,7 @@ class WelcomeComponent extends Component {
       this.onConnectToRoom,
       this.onFailToConnect
     );
-    roomState = roomState.addPlayer(new Player(roomState.playerID, roomState.playerName));
+    roomState = roomState.addPlayer(new Player(roomState.playerName).setPlayerID(this.state.roomState.playerID));
     this.setState({ roomState: roomState.setBasicProperty('isCreator', created), checkingRoom: true });
   }
   onConnectToRoom() {
@@ -128,7 +128,7 @@ class WelcomeComponent extends Component {
     if (this.canJoin) {
       COMMUNICATOR.sendObject({
         joined: true,
-        player: new Player(this.state.roomState.playerID, this.state.roomState.playerName)
+        player: new Player(this.state.roomState.playerName).setPlayerID(this.state.roomState.playerID)
       });
       this.state.roomState = this.state.roomState.setBasicProperty('joined', true);
       this.moveOn();
