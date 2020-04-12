@@ -108,6 +108,7 @@ class GamePlayComponent extends Component {
   }
   goHome() {
     this.setState({ roomState: this.state.roomState.reset() });
+    this.movingOn(this.state.roomState);
   }
   render(props, state) {
     if (state.roomState.isReadyForNextTurn()) {
