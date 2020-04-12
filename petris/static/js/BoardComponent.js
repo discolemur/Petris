@@ -10,6 +10,7 @@ class BoardComponent extends Component {
     this.adaptCellByCurrentMove = this.adaptCellByCurrentMove.bind(this);
     this.boardCell = this.boardCell.bind(this);
     this.onCellClick = this.onCellClick.bind(this);
+    this.rotateGameplayButton = props.rotateButton;
     this.updateTrigger = props.updateTrigger;
     this.setState({
       roomState: props.roomState.newBoard()
@@ -121,6 +122,7 @@ class BoardComponent extends Component {
       changed = true;
     }
     if (changed) {
+      this.rotateGameplayButton();
       this.updateTrigger();
       this.setState({ roomState: this.state.roomState.setBasicProperty("currentMove", currentMove) });
     }

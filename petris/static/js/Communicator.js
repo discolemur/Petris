@@ -24,6 +24,9 @@ class Communicator {
         this.sendObject = this.sendObject.bind(this);
         this.messageCallback = (obj) => console.log('Received message, but no message callback is set.');
     }
+    isConnected() {
+        return this.client !== null && this.client.isConnected();
+    }
     connect(roomName, playerID, onConnectCallback, onFailure) {
         this.config = new MQTT_CONFIG(roomName, playerID);
         this.client = new Paho.MQTT.Client(this.config.broker, Number(this.config.port), this.config.client_id);
@@ -37,7 +40,7 @@ class Communicator {
         this.client.connect(options);
     }
     disconnect() {
-        if (this.client.isConnected()) {
+        if (this.isConnected()) {
             this.client.disconnect();
         }
     }
@@ -76,7 +79,6 @@ class Communicator {
             }
             this.client.connect(options);
         } else {
-            console.log('Sending message.');
             this.client.send(message);
         }
     }

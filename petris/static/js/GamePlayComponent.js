@@ -11,6 +11,7 @@ class GamePlayComponent extends Component {
     this.messageCallback = this.messageCallback.bind(this);
     this.canEndTurn = this.canEndTurn.bind(this);
     this.gamePlayButton = this.gamePlayButton.bind(this);
+    this.rotateButton = this.rotateButton.bind(this);
     this.adjustBoardHexWidth = this.adjustBoardHexWidth.bind(this);
     this.goHome = this.goHome.bind(this);
     this.clearBoard = this.clearBoard.bind(this);
@@ -46,12 +47,13 @@ class GamePlayComponent extends Component {
   endTurn() {
     this.setState({ roomState: this.state.roomState.freezeMove() });
     this.pingForPlayers();
+    this.rotateButton();
     this.movingOn(this.state.roomState);
   }
   pingForPlayers() {
     let obj = { ping: true };
     if (this.state.roomState.isFrozen()) {
-      obj.move = this.state.roomState.currentMove;
+      obj.moves = this.state.roomState.getConfirmedMoves();
     }
     COMMUNICATOR.sendObject(obj);
     setTimeout(() => {
@@ -61,9 +63,9 @@ class GamePlayComponent extends Component {
     }, GAME_PING_FREQUENCY);
   }
   messageCallback(msg) {
-    if (msg.move) {
+    if (msg.moves) {
       this.setState({
-        roomState: this.state.roomState.setLatestPing(msg.playerID).logMove(msg.move)
+        roomState: this.state.roomState.setLatestPing(msg.playerID).updateConfirmedMoves(msg.moves)
       });
     } else if (msg.clearBoard) {
       this.setState({ roomState: this.state.roomState.newBoard() });
@@ -93,10 +95,12 @@ class GamePlayComponent extends Component {
     } else {
       btnProps.blinkBGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
     }
-    this.state.rotatedBtn = !this.state.rotatedBtn;
     btnProps.flatTop = this.state.rotatedBtn;
     btnProps.transitionAll = true;
     return h('div', { style: { width: btnProps.hexWidth } }, h(Hexagon, { styleParams: btnProps }));
+  }
+  rotateButton() {
+    this.setState({rotatedBtn: !this.state.rotatedBtn});
   }
   adjustBoardHexWidth(inputEvent) {
     this.setState({ boardHexWidth: inputEvent.target.valueAsNumber });
@@ -115,14 +119,13 @@ class GamePlayComponent extends Component {
       this.nextTurn();
     }
     let availableMove = this.state.roomState.getAvailableMove();
-    // TODO visually notify that the next turn has started
     return h('div', { id: 'GamePlayWrapper' },
       h('div', { class: "slider" },
         h('span', {}, 'Small'),
         h('input', { type: "range", min: 20, max: 100, value: state.boardHexWidth, onInput: this.adjustBoardHexWidth }),
         h('span', {}, 'Large')
       ),
-      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, boardHexWidth: state.boardHexWidth }),
+      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, rotateButton: this.rotateButton, boardHexWidth: state.boardHexWidth }),
       h('div', { style: { width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
         availableMove == Move.GAME_OVER ? defaultButton('Return to Home', this.goHome, true) : null,
         this.gamePlayButton(),

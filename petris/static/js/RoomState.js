@@ -212,6 +212,20 @@ class RoomState {
     }
     return this;
   }
+  /**
+   * Gets list of confirmed moves (not keyed object, just the list of moves.)
+   */
+  getConfirmedMoves() {
+    return Object.values(this.confirmedMoves);
+  }
+  /**
+   * 
+   * @param {Array<Move>} moves 
+   */
+  updateConfirmedMoves(moves) {
+    moves.map(m=>this.logMove(m));
+    return this;
+  }
   _getEmptyCells() {
     return this.board.getCells().filter(c => (c.occupation == CellState.NO_USER));
   }

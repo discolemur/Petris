@@ -1,5 +1,7 @@
 "use strict";
 
+var getRoomState = ()=>{}
+
 class WrapperComponent extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +13,9 @@ class WrapperComponent extends Component {
       roomState = roomState.dummyTest();
     }
     this.setState({ roomState: roomState });
+  }
+  componentDidMount() {
+    getRoomState = ()=>this.state.roomState;
   }
   movingOn(roomState) {
     this.setState({ roomState: roomState });
