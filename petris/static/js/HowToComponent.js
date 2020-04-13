@@ -1,5 +1,6 @@
 "use strict";
 
+// TODO optimize for mobile
 class HowToComponent extends Component {
     constructor(props) {
         super(props)
