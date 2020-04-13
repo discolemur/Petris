@@ -3,6 +3,7 @@
 class GamePlayComponent extends Component {
   constructor(props) {
     super(props);
+    // Bindings
     this.onConnectionLost = this.onConnectionLost.bind(this);
     this.nextTurn = this.nextTurn.bind(this);
     this.onKeyPressed = this.onKeyPressed.bind(this);
@@ -15,11 +16,13 @@ class GamePlayComponent extends Component {
     this.adjustBoardHexWidth = this.adjustBoardHexWidth.bind(this);
     this.goHome = this.goHome.bind(this);
     this.clearBoard = this.clearBoard.bind(this);
+    this.displayBoard = this.displayBoard.bind(this);
+    // End Bindings
     this.updateTrigger = () => this.setState({});
     this.movingOn = props.movingOn;
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
-    this.state.roomState = props.roomState;
+    this.state.roomState = props.roomState.newBoard();
     this.state.boardHexWidth = DEFAULT_BOARD_CELL_WIDTH;
     document.addEventListener("keyup", this.onKeyPressed);
     this.pingForPlayers();
@@ -97,10 +100,10 @@ class GamePlayComponent extends Component {
     }
     btnProps.flatTop = this.state.rotatedBtn;
     btnProps.transitionAll = true;
-    return h('div', { style: { width: btnProps.hexWidth } }, h(Hexagon, { styleParams: btnProps }));
+    return h('div', { style: { width: btnProps.hexWidth + btnProps.borderWidth * 2 } }, h(Hexagon, { styleParams: btnProps }));
   }
   rotateButton() {
-    this.setState({rotatedBtn: !this.state.rotatedBtn});
+    this.setState({ rotatedBtn: !this.state.rotatedBtn });
   }
   adjustBoardHexWidth(inputEvent) {
     this.setState({ boardHexWidth: inputEvent.target.valueAsNumber });
@@ -114,19 +117,28 @@ class GamePlayComponent extends Component {
     this.setState({ roomState: this.state.roomState.reset() });
     this.movingOn(this.state.roomState);
   }
+  displayBoard(dims) {
+    let optimalWidth = Math.max(250, dims.width);
+    return h('div', { style: { textAlign: 'center', margin: 'auto', height: '100%', width: `${optimalWidth}px` } },
+      h(BoardComponent, { roomState: this.state.roomState, updateTrigger: this.updateTrigger, rotateButton: this.rotateButton, boardHexWidth: this.state.boardHexWidth }),
+    )
+  }
   render(props, state) {
     if (state.roomState.isReadyForNextTurn()) {
       this.nextTurn();
     }
+    var ww = window.innerWidth;
+    let dims = this.state.roomState.board.getDimensions(this.state.boardHexWidth);
+    let boardTooWide = (dims.width + defaultButtonWidth()) > ww;
     let availableMove = this.state.roomState.getAvailableMove();
-    return h('div', { id: 'GamePlayWrapper' },
-      h('div', { class: "slider" },
+    return h('div', { id: 'GamePlayWrapper', style: { flexDirection: boardTooWide ? 'column' : 'row' } },
+      h('div', { class: "slider", style: { position: 'absolute', left: '10px', top: '-15px' } },
         h('span', {}, 'Small'),
-        h('input', { type: "range", min: 20, max: 100, value: state.boardHexWidth, onInput: this.adjustBoardHexWidth }),
+        h('input', { type: "range", min: 20, max: 100, value: this.state.boardHexWidth, onInput: this.adjustBoardHexWidth }),
         h('span', {}, 'Large')
       ),
-      h(BoardComponent, { roomState: state.roomState, updateTrigger: this.updateTrigger, rotateButton: this.rotateButton, boardHexWidth: state.boardHexWidth }),
-      h('div', { style: { width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' } },
+      this.displayBoard(dims),
+      h('div', { style: { display: 'flex', flexDirection: boardTooWide ? 'row' : 'column', justifyContent: 'space-evenly', margin: 'auto' } },
         availableMove == Move.GAME_OVER ? defaultButton('Return to Home', this.goHome, true) : null,
         this.gamePlayButton(),
         availableMove == Move.GAME_OVER && state.roomState.isCreator ? defaultButton('Clear Board', this.clearBoard, true) : null

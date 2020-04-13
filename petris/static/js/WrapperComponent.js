@@ -1,6 +1,6 @@
 "use strict";
 
-var getRoomState = ()=>{}
+var getRoomState = () => { }
 
 class WrapperComponent extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class WrapperComponent extends Component {
     this.setState({ roomState: roomState });
   }
   componentDidMount() {
-    getRoomState = ()=>this.state.roomState;
+    getRoomState = () => this.state.roomState;
   }
   movingOn(roomState) {
     this.setState({ roomState: roomState });
@@ -52,16 +52,11 @@ class WrapperComponent extends Component {
     return elements;
   }
   banner() {
-    let scoreboard = null;
-    if (this.state.roomState.started) {
-      let playerData = this.getPlayerScoreElements();
-      scoreboard = h('div', { id: 'BannerScores' }, playerData);
-    }
+    let subtitle = h('div', { id: 'Subtitle'}, 'grow colonies | make connections')
     return h('div', { id: 'Banner' },
-      h('div', { id: 'BannerContents' },
-        h('span', { style: { height: '100%', minWidth: '30%', flexShrink: 0 } }, 'Petris'),
-        scoreboard
-      )
+      h('div', { id: 'BannerScores' },
+        h('span', { id: 'Title' }, 'Petris'),
+        this.state.roomState.started ? this.getPlayerScoreElements() : subtitle)
     );
   }
   render(props, state) {

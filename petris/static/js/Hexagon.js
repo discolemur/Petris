@@ -213,10 +213,15 @@ class Hexagon extends Component {
   }
 }
 
-var defaultButtonProps = (text, onClick, enabled) => {
+function defaultButtonWidth() {
+  var wh = window.innerHeight;
+  return Math.min( 200, wh / 5 );
+}
+
+function defaultButtonProps(text, onClick, enabled) {
   let props = new HexagonProps();
   props.text = text;
-  props.hexWidth = 200;
+  props.hexWidth = defaultButtonWidth();
   props.borderWidth = 5;
   if (enabled) {
     props.borderColor = '#718EA4';

@@ -13,7 +13,7 @@ class BoardComponent extends Component {
     this.rotateGameplayButton = props.rotateButton;
     this.updateTrigger = props.updateTrigger;
     this.setState({
-      roomState: props.roomState.newBoard()
+      roomState: props.roomState
     });
   }
   /**
@@ -128,23 +128,20 @@ class BoardComponent extends Component {
     }
   }
   render(props, state) {
-    this.boardHexWidth = props.boardHexWidth;
     let cells = state.roomState.board.getCells();
-    let minX = Math.min.apply(null, cells.map(c => c.center[0]));
-    let maxX = Math.max.apply(null, cells.map(c => c.center[0]));
-    let minY = Math.min.apply(null, cells.map(c => c.center[1]));
-    let maxY = Math.max.apply(null, cells.map(c => c.center[1]));
+    this.boardHexWidth = props.boardHexWidth;
+    let dims = state.roomState.board.getDimensions(this.boardHexWidth);
     return h('div', {
       id: 'Board',
       style: {
-        height: `${(maxY - minY + 2) * this.boardHexWidth}px`,
-        width: `${(maxX - minX + 2) * this.boardHexWidth}px`
+        height: `${dims.height}px`,
+        width: `${dims.width}px`
       }
     },
       cells.map(c => this.boardCell(
         c,
-        c.center[0] - minX + 0.5,
-        c.center[1] - minY + 0.5,
+        c.center[0] - dims.minX + 0.5,
+        c.center[1] - dims.minY + 0.5,
         () => this.onCellClick(c)
       ))
     )
