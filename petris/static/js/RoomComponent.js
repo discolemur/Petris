@@ -10,15 +10,15 @@ class RoomComponent extends Component {
     this.start = this.start.bind(this);
     this.messageCallback = this.messageCallback.bind(this);
     this.playerList = this.playerList.bind(this);
-    this.adjustBoardHeight = this.adjustBoardHeight.bind(this);
-    this.adjustBoardWidth = this.adjustBoardWidth.bind(this);
     this.adjustColonizationsPerTurn = this.adjustColonizationsPerTurn.bind(this);
     this.estimateNumTurns = this.estimateNumTurns.bind(this);
+    this.adjustDesiredNumTurns = this.adjustDesiredNumTurns.bind(this);
     this.sliders = this.sliders.bind(this);
     this.computerButtons = this.computerButtons.bind(this);
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     this.movingOn = props.movingOn;
     this.state.roomState = props.roomState;
+    this.state.desiredNumTurns = 10;
     this.state.startFailed = false;
     if (props.roomState.isCreator) {
       this.pingForPlayers();
@@ -89,38 +89,39 @@ class RoomComponent extends Component {
     }
     let totalWidth = ((this.state.roomState.players.length + 1) / 2) * hexWidth;
     let totalHeight = 2 * hexWidth;
-    return h('div', {style: { height: `${totalHeight}px`, width: `${totalWidth}px`, display: 'block', position: 'relative' } }, playerHexagons);
+    return h('div', { style: { height: `${totalHeight}px`, width: `${totalWidth}px`, display: 'block', position: 'relative' } }, playerHexagons);
   }
-  adjustBoardHeight(inputEvent) {
-    this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', inputEvent.target.valueAsNumber) });
-  }
-  adjustBoardWidth(inputEvent) {
-    this.setState({ roomState: this.state.roomState.setBasicProperty('boardWidth', inputEvent.target.valueAsNumber) });
+  updateDimensions() {
+    let optimalNumCells = this.state.desiredNumTurns * (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn);
+    let width = Math.round(Math.sqrt(optimalNumCells));
+    let height = Math.ceil(optimalNumCells / width);
+    this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', height).setBasicProperty('boardWidth', width) })
   }
   adjustColonizationsPerTurn(inputEvent) {
     this.setState({ roomState: this.state.roomState.setBasicProperty('colonizationsPerTurn', inputEvent.target.valueAsNumber) });
+    this.updateDimensions();
+  }
+  adjustDesiredNumTurns(inputEvent) {
+    this.setState({ desiredNumTurns: inputEvent.target.valueAsNumber });
+    this.updateDimensions();
   }
   estimateNumTurns() {
     return Math.floor((this.state.roomState.boardHeight * this.state.roomState.boardWidth)
       / (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn))
   }
   sliders() {
-    return [h('div', { class: "slider" },
-      h('span', {}, `Board Width: ${this.state.roomState.boardWidth}  |  2`),
-      h('input', { type: "range", min: 2, max: 28, value: this.state.roomState.boardWidth, onInput: this.adjustBoardWidth }),
-      h('span', {}, '28')
-    ),
-    h('div', { class: "slider" },
-      h('span', {}, `Board Height: ${this.state.roomState.boardHeight}  |  2`),
-      h('input', { type: "range", min: 2, max: 28, value: this.state.roomState.boardHeight, onInput: this.adjustBoardHeight }),
-      h('span', {}, '28')
-    ),
-    h('div', { class: "slider" },
-      h('span', {}, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}  |  1`),
-      h('input', { type: "range", min: 1, max: 10, value: this.state.roomState.colonizationsPerTurn, onInput: this.adjustColonizationsPerTurn }),
-      h('span', {}, '10')
-    ),
-    h('span', { style: { textAlign: 'center', marginTop: '10px', marginBottom: '10px' } }, `Expected number of turns to complete game with ${Math.max.apply(null, [2, this.state.roomState.players.length])} players: ${this.estimateNumTurns()} turns`)
+    return [
+      h('div', { class: "slider" },
+        h('span', { class: "sliderPrompt" }, `Approximate Number of Turns: ${this.state.desiredNumTurns}`),
+        h('span', { class: "sliderLimit" }, '3'),
+        h('input', { type: "range", min: 3, max: 40, value: this.state.desiredNumTurns, onInput: this.adjustDesiredNumTurns }),
+        h('span', { class: "sliderLimit" }, '40')
+      ), h('div', { class: "slider" },
+        h('span', { class: "sliderPrompt" }, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}`),
+        h('span', { class: "sliderLimit" }, '1'),
+        h('input', { type: "range", min: 1, max: 10, value: this.state.roomState.colonizationsPerTurn, onInput: this.adjustColonizationsPerTurn }),
+        h('span', { class: "sliderLimit" }, '10')
+      )
     ]
   }
   computerButtons() {

@@ -102,9 +102,13 @@ body,
   position: relative;
 }
 .slider {
-  width: 16rem;
+  width: auto;
 }
-.slider span {
+.sliderPrompt {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+.sliderLimit {
   margin-left:10px;
   margin-right: 10px;
 }
