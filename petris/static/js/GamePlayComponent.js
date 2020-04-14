@@ -13,7 +13,6 @@ class GamePlayComponent extends Component {
     this.canEndTurn = this.canEndTurn.bind(this);
     this.gamePlayButton = this.gamePlayButton.bind(this);
     this.rotateButton = this.rotateButton.bind(this);
-    this.adjustBoardHexWidth = this.adjustBoardHexWidth.bind(this);
     this.goHome = this.goHome.bind(this);
     this.clearBoard = this.clearBoard.bind(this);
     // End Bindings
@@ -22,7 +21,6 @@ class GamePlayComponent extends Component {
     COMMUNICATOR.setMessageCallback(this.messageCallback);
     COMMUNICATOR.setOnConnectionLost(this.onConnectionLost);
     this.state.roomState = props.roomState.newBoard();
-    this.state.boardHexWidth = DEFAULT_BOARD_CELL_WIDTH;
     document.addEventListener("keyup", this.onKeyPressed);
     this.pingForPlayers();
     this.state.rotatedBtn = false;
@@ -76,19 +74,19 @@ class GamePlayComponent extends Component {
   }
   canEndTurn() {
     let availableMove = this.state.roomState.getAvailableMove();
-    return (availableMove == Move.NO_MOVE || availableMove == Move.ANTIBIOTIC) && availableMove != Move.GAME_OVER
+    return (availableMove == Moves.NO_MOVE || availableMove == Moves.ANTIBIOTIC) && availableMove != Moves.GAME_OVER
   }
   gamePlayButton(hexWidth) {
     let availableMove = this.state.roomState.getAvailableMove();
     let numAvailableMoves = this.state.roomState.getNumAvailableMoves();
     let enabled = false;
     let text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
-    if (availableMove == Move.GAME_OVER) {
+    if (availableMove == Moves.GAME_OVER) {
       text = 'Game Over!';
     } else if (this.state.roomState.isFrozen()) {
       text = 'Waiting for everyone to finish.'
     } else if (this.canEndTurn()) {
-      text = availableMove == Move.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
+      text = availableMove == Moves.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
       enabled = true;
     }
     let btnProps = defaultButtonProps(text, hexWidth, this.endTurn, enabled);
@@ -101,7 +99,7 @@ class GamePlayComponent extends Component {
     btnProps.transitionAll = true;
     return h('div', {
       style: {
-        width: btnProps.hexWidth + btnProps.borderWidth * 6,
+        width: 'auto',
         overflow: 'hidden',
         display: 'flex',
         justifyContent: 'center'
@@ -111,15 +109,15 @@ class GamePlayComponent extends Component {
   rotateButton() {
     this.setState({ rotatedBtn: !this.state.rotatedBtn });
   }
-  adjustBoardHexWidth(inputEvent) {
-    this.setState({ boardHexWidth: inputEvent.target.valueAsNumber });
-  }
   clearBoard() {
     COMMUNICATOR.sendObject({ clearBoard: true });
     this.setState({ roomState: this.state.roomState.newBoard() });
     this.movingOn(this.state.roomState);
   }
   goHome() {
+    if (TESTING) {
+      TESTING = false;
+    }
     this.setState({ roomState: this.state.roomState.reset() });
     this.movingOn(this.state.roomState);
   }
@@ -127,27 +125,46 @@ class GamePlayComponent extends Component {
     if (state.roomState.isReadyForNextTurn()) {
       this.nextTurn();
     }
-    let ww = window.innerWidth;
-    let dims = this.state.roomState.board.getDimensions(this.state.boardHexWidth);
-    if (dims.rotate) {
-      let tmp = dims.width;
-      dims.width = dims.height;
-      dims.height = tmp;
-    }
-    let boardTooWide = (dims.width + 200) > ww;
-    let hexBtnWidth = boardTooWide ? ww / 3.5 : Math.min((ww - dims.width) * 0.75, defaultButtonWidth());
+    let isLandscape = windowIsLandscape();
+    let wrapperHeight = window.innerHeight - 110;
+    let wrapperWidth = window.innerWidth;
+    let hexBtnWidth = isLandscape ? wrapperHeight / 4 : wrapperWidth / 4;
+    let hexBtnMaxWidth = hexBtnWidth * 1.2398;
+    let buttonWrapperHeight = isLandscape ? wrapperHeight : hexBtnMaxWidth;
+    let buttonWrapperWidth =  isLandscape ? hexBtnMaxWidth : wrapperWidth;
+    let boardHeight = isLandscape ? wrapperHeight : wrapperHeight - hexBtnMaxWidth;
+    let boardWidth = isLandscape ? wrapperWidth - hexBtnMaxWidth : wrapperWidth;
+    this.state.roomState.board.setBoardHexWidth(boardWidth, boardHeight);
     let availableMove = this.state.roomState.getAvailableMove();
-    return h('div', { id: 'GamePlayWrapper', style: { flexDirection: boardTooWide ? 'column' : 'row', justifyContent: boardTooWide ? 'start' : 'space-around' } },
-      h('div', { class: "slider", style: { position: 'absolute', left: '10px', top: '-15px' } },
-        h('span', {}, 'Small'),
-        h('input', { type: "range", min: 20, max: 100, value: this.state.boardHexWidth, onInput: this.adjustBoardHexWidth }),
-        h('span', {}, 'Large')
-      ),
-      h(BoardComponent, { roomState: this.state.roomState, updateTrigger: this.updateTrigger, rotateButton: this.rotateButton, boardHexWidth: this.state.boardHexWidth }),
-      h('div', { style: { display: 'flex', flexDirection: boardTooWide ? 'row' : 'column', justifyContent: 'space-evenly' } },
-        availableMove == Move.GAME_OVER ? defaultButton('Return to Home', hexBtnWidth, this.goHome, true) : null,
+    return h('div', {
+      id: 'GamePlayWrapper', style: {
+        flexDirection: isLandscape ? 'row' : 'column',
+        justifyContent: isLandscape ? 'space-around' : 'start',
+        height: `${wrapperHeight}px`,
+        width: `${wrapperWidth}px`
+      }
+    },
+      h(BoardComponent, {
+        roomState: this.state.roomState,
+        updateTrigger: this.updateTrigger,
+        rotateButton: this.rotateButton
+      }),
+      h('div', {
+        style:
+        {
+          id: 'GameplayButtonWrapper',
+          width: `${buttonWrapperWidth}px`,
+          height: `${buttonWrapperHeight}px`,
+          display: 'flex',
+          flexDirection: isLandscape ? 'column' : 'row',
+          justifyContent: 'space-evenly'
+        }
+      },
+        availableMove == Moves.GAME_OVER
+          ? defaultButton('Return to Home', hexBtnWidth, this.goHome, true) : null,
         this.gamePlayButton(hexBtnWidth),
-        availableMove == Move.GAME_OVER && state.roomState.isCreator ? defaultButton('Clear Board', hexBtnWidth, this.clearBoard, true) : null
+        availableMove == Moves.GAME_OVER && state.roomState.isCreator
+          ? defaultButton('Clear Board', hexBtnWidth, this.clearBoard, true) : null
       )
     )
   }

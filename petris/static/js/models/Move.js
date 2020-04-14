@@ -15,23 +15,23 @@ class Move {
     }
     getAvailableMove() {
         if (this.frozen) {
-            return Move.NO_MOVE;
+            return Moves.NO_MOVE;
         }
         if (this.colonies.length < this.maxColonizations) {
-            return Move.COLONY;
+            return Moves.COLONY;
         }
         if (this.antibiotic === null) {
-            return Move.ANTIBIOTIC;
+            return Moves.ANTIBIOTIC;
         }
-        return Move.NO_MOVE;
+        return Moves.NO_MOVE;
     }
     cellHasMove(cell) {
         if (this.colonies.indexOf(cell.id) >= 0) {
-            return Move.COLONY;
+            return Moves.COLONY;
         } else if (this.antibiotic == cell.id) {
-            return Move.ANTIBIOTIC;
+            return Moves.ANTIBIOTIC;
         }
-        return Move.NO_MOVE;
+        return Moves.NO_MOVE;
     }
     addColony(cell) {
         if (this.colonies.length == this.maxColonizations || this.frozen) {
@@ -61,7 +61,3 @@ class Move {
         this.frozen = true;
     }
 }
-Move.COLONY = 10;
-Move.ANTIBIOTIC = 20;
-Move.NO_MOVE = false;
-Move.GAME_OVER = -100;

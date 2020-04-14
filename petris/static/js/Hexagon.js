@@ -201,13 +201,13 @@ class Hexagon extends Component {
     if (this.style.top) {
       positionStyle.top = top;
     }
-    positionStyle.width = this.style.hexWidth + 6 * this.style.borderWidth;
+    positionStyle.width = this.style.hexWidth + 8 * this.style.borderWidth;
     let fontSize = this.style.fontSize ? `${this.style.fontSize}px` : `${this.style.hexWidth / 6}px`;
     let color = (this.state.hover && this.style.hoverColor !== null) ? this.style.hoverColor : this.style.color;
     let textClasses = this.style.rotateText ? 'innerHexTextWrapper rotateText' : 'innerHexTextWrapper';
     return h('div', {
       style: {
-        width: this.style.hexWidth + this.style.borderWidth * 6,
+        width: 'auto',
       }
     },
       h('div', { class: 'hexCell', style: positionStyle },

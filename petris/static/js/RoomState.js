@@ -1,31 +1,5 @@
 "use strict";
 
-/**
- * From community wiki answer at https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
- */
-function uuidv4() {
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
-}
-
-/**
- * From https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
- * Community Wiki Jeff answer.
- * Shuffles array in place.
- * @param {Array} a items An array containing the items.
- */
-function shuffle(a) {
-  let j, x, i;
-  for (i = a.length - 1; i > 0; i--) {
-    j = Math.floor(Math.random() * (i + 1));
-    x = a[i];
-    a[i] = a[j];
-    a[j] = x;
-  }
-  return a;
-}
-
 class RoomState {
   constructor() {
     this.playerID = uuidv4();
@@ -56,13 +30,13 @@ class RoomState {
     let p5 = new Player('jessica').setIsComputer();
     let p6 = new Player('rebecca').setIsComputer();
     let p7 = new Player('sydney').setIsComputer();
-    p1.color = Player.COLOR_LIST[0];
-    p2.color = Player.COLOR_LIST[1];
-    p3.color = Player.COLOR_LIST[2];
-    p4.color = Player.COLOR_LIST[3];
-    p5.color = Player.COLOR_LIST[4];
-    p6.color = Player.COLOR_LIST[5];
-    p7.color = Player.COLOR_LIST[6];
+    p1.color = PLAYER_COLOR_LIST[0];
+    p2.color = PLAYER_COLOR_LIST[1];
+    p3.color = PLAYER_COLOR_LIST[2];
+    p4.color = PLAYER_COLOR_LIST[3];
+    p5.color = PLAYER_COLOR_LIST[4];
+    p6.color = PLAYER_COLOR_LIST[5];
+    p7.color = PLAYER_COLOR_LIST[6];
     this.players = [p1, p2, p3, p4, p5, p6, p7];
     this.playerName = p1.playerName;
     this.roomName = 'sandbox';
@@ -104,11 +78,11 @@ class RoomState {
   }
   _setColors(plist) {
     let used_colors = plist.map(p => p.color);
-    if (used_colors.indexOf(Player.NO_COLOR) >= 0 || used_colors.indexOf(null) >= 0 || used_colors.indexOf(undefined) >= 0) {
-      let available_colors = Player.COLOR_LIST.filter(c => used_colors.indexOf(c) < 0);
+    if (used_colors.indexOf(NO_PLAYER_COLOR) >= 0 || used_colors.indexOf(null) >= 0 || used_colors.indexOf(undefined) >= 0) {
+      let available_colors = PLAYER_COLOR_LIST.filter(c => used_colors.indexOf(c) < 0);
       let counter = 0;
       for (let player of plist) {
-        if (player.color === undefined || player.color === null || player.color === Player.NO_COLOR) {
+        if (player.color === undefined || player.color === null || player.color === NO_PLAYER_COLOR) {
           player.color = available_colors[counter++];
         }
       }
@@ -147,7 +121,7 @@ class RoomState {
     return this;
   }
   hasComputer() {
-    return this.players.filter(p=>p.type == Player.COMPUTER).length > 0;
+    return this.players.filter(p => p.type == Player.COMPUTER).length > 0;
   }
   /**
    * Attribute may be any key of RoomState objects.
@@ -223,7 +197,7 @@ class RoomState {
    * @param {Array<Move>} moves 
    */
   updateConfirmedMoves(moves) {
-    moves.map(m=>this.logMove(m));
+    moves.map(m => this.logMove(m));
     return this;
   }
   _getEmptyCells() {
@@ -276,16 +250,16 @@ class RoomState {
   }
   getAvailableMove() {
     if (this.currentMove === null) {
-      return Move.COLONY;
+      return Moves.COLONY;
     }
     let am = this.currentMove.getAvailableMove();
     let emptyCells = this.board.getCells().filter(c => c.occupation == CellState.NO_USER);
     if (emptyCells.length == 0
-      || emptyCells.filter(c => this.currentMove.cellHasMove(c) == Move.NO_MOVE).length == 0) {
-      am = Move.NO_MOVE;
+      || emptyCells.filter(c => this.currentMove.cellHasMove(c) == Moves.NO_MOVE).length == 0) {
+      am = Moves.NO_MOVE;
     }
     if (this.currentMove.isEmpty() && emptyCells.length == 0) {
-      am = Move.GAME_OVER;
+      am = Moves.GAME_OVER;
     }
     return am;
   }

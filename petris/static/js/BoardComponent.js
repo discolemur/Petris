@@ -1,6 +1,5 @@
 "use strict";
 
-var BOARD_CELL_BORDER_WIDTH = 3;
 
 class BoardComponent extends Component {
   constructor(props) {
@@ -12,6 +11,7 @@ class BoardComponent extends Component {
     this.onCellClick = this.onCellClick.bind(this);
     this.rotateGameplayButton = props.rotateButton;
     this.updateTrigger = props.updateTrigger;
+    this.BOARD_CELL_BORDER_WIDTH = 3;
     this.setState({
       roomState: props.roomState
     });
@@ -24,13 +24,13 @@ class BoardComponent extends Component {
   adaptCellByAvailableMove(cell, props) {
     let availableMove = this.state.roomState.getAvailableMove();
     let availableMoveColor = null;
-    if (this.state.roomState.currentMove.cellHasMove(cell) != Move.NO_MOVE) {
+    if (this.state.roomState.currentMove.cellHasMove(cell) != Moves.NO_MOVE) {
       availableMoveColor = '#484848';
       props.hoverBorderColor = '#C30000';
     } else {
-      if (availableMove == Move.ANTIBIOTIC) {
+      if (availableMove == Moves.ANTIBIOTIC) {
         availableMoveColor = ANTIBIOTIC_COLOR;
-      } else if (availableMove == Move.COLONY) {
+      } else if (availableMove == Moves.COLONY) {
         availableMoveColor = this.state.roomState.players.filter(p => p.playerID == this.state.roomState.playerID)[0].color;
       }
     }
@@ -83,14 +83,14 @@ class BoardComponent extends Component {
  * @param {Number} top
  * @param {function} onClick 
  */
-  boardCell(cell, left, top, rotateText, onClick) {
+  boardCell(cell, hexWidth, left, top, rotateText, onClick) {
     let props = new HexagonProps();
     props.rotateText = rotateText;
     props.onClick = onClick;
     props.left = left;
     props.top = top;
-    props.hexWidth = this.boardHexWidth;
-    props.borderWidth = BOARD_CELL_BORDER_WIDTH;
+    props.hexWidth = hexWidth;
+    props.borderWidth = this.BOARD_CELL_BORDER_WIDTH;
     props.borderColor = '#4C4C4C';
     props.flatTop = true;
     if (cell.wasProtected) {
@@ -109,16 +109,16 @@ class BoardComponent extends Component {
     let cellsMove = currentMove.cellHasMove(cell);
     let availableMove = this.state.roomState.currentMove.getAvailableMove();
     let changed = false;
-    if (cellsMove == Move.ANTIBIOTIC) {
+    if (cellsMove == Moves.ANTIBIOTIC) {
       currentMove.removeAntibiotic(cell);
       changed = true;
-    } else if (cellsMove == Move.COLONY) {
+    } else if (cellsMove == Moves.COLONY) {
       currentMove.removeColony(cell);
       changed = true;
-    } else if (availableMove == Move.COLONY) {
+    } else if (availableMove == Moves.COLONY) {
       currentMove.addColony(cell);
       changed = true;
-    } else if (availableMove == Move.ANTIBIOTIC) {
+    } else if (availableMove == Moves.ANTIBIOTIC) {
       currentMove.addAntibiotic(cell);
       changed = true;
     }
@@ -129,21 +129,23 @@ class BoardComponent extends Component {
     }
   }
   render(props, state) {
+    let dims = state.roomState.board.getDimensions();
+    let height = dims.height;
+    let width = dims.width;
     let cells = state.roomState.board.getCells();
-    this.boardHexWidth = props.boardHexWidth;
-    let dims = state.roomState.board.getDimensions(this.boardHexWidth);
     return h('div', {
       id: 'Board',
       class: dims.rotate ? 'fullRotate' : null,
       style: {
-        height: `${dims.height}px`,
-        width: `${dims.width}px`
+        height: `${height}px`,
+        width: `${width}px`,
       }
     },
       cells.map(c => this.boardCell(
         c,
-        c.center[0] - dims.minX + 0.5,
-        c.center[1] - dims.minY + 0.5,
+        dims.boardHexWidth,
+        c.center[0] - dims.minX,
+        c.center[1] - dims.minY,
         dims.rotate,
         () => this.onCellClick(c)
       ))

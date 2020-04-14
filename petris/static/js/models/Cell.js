@@ -1,12 +1,4 @@
-
-/**
- * CellState gives global variables important to the state of the board. 
- */
-var CellState = {
-    NO_USER: -1,
-    ANTIBIOTIC: -2,
-    COMPETITION: -3,
-};
+"use strict";
 
 var ID_COUNTER = 1;
 

@@ -1,9 +1,5 @@
 "use strict";
 
-// This is how long to wait for a response before assuming the room is empty.
-var TIME_UNTIL_CREATE = 1000;
-var JOIN_ROOM_TIMEOUT = 1000;
-
 /**
  * Prompts until it asks which room you want to join or create.
  */

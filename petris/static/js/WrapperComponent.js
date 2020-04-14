@@ -16,6 +16,7 @@ class WrapperComponent extends Component {
   }
   componentDidMount() {
     getRoomState = () => this.state.roomState;
+    window.addEventListener('resize', (event)=>this.setState({}));
   }
   movingOn(roomState) {
     this.setState({ roomState: roomState });
