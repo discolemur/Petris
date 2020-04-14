@@ -214,17 +214,22 @@ class Board {
         return players;
     }
     getDimensions(hexWidth) {
+        let ww = window.innerWidth;
+        let wh = window.innerHeight;
+        let isLandscape = ww > wh;
         let minX = Math.min.apply(null, this.getCells().map(c => c.center[0]));
         let maxX = Math.max.apply(null, this.getCells().map(c => c.center[0]));
         let minY = Math.min.apply(null, this.getCells().map(c => c.center[1]));
         let maxY = Math.max.apply(null, this.getCells().map(c => c.center[1]));
         let height = (maxY - minY + 2) * hexWidth;
         let width = (maxX - minX + 2) * hexWidth;
+        let rotate = (isLandscape && (height > width)) || (!isLandscape && (width > height));
         return {
             minX: minX,
             minY: minY,
             height: height,
-            width: width
+            width: width,
+            rotate: rotate
         }
     }
 }

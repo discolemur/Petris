@@ -124,8 +124,8 @@ class RoomComponent extends Component {
     ]
   }
   computerButtons() {
-    let addCompBtnProps = defaultButtonProps('Add Computer Player', () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
-    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
+    let addCompBtnProps = defaultButtonProps('Add Computer Player', null, () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
+    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', null, () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
     addCompBtnProps.hexWidth = 75;
     removeCompBtnProps.hexWidth = 75;
     return h('div', {
@@ -156,7 +156,7 @@ class RoomComponent extends Component {
           this.playerList(),
           state.roomState.isCreator ? this.computerButtons() : null,
           state.roomState.isCreator ? this.sliders() : null,
-          state.roomState.isCreator ? defaultButton('Start Game', this.start, true)
+          state.roomState.isCreator ? defaultButton('Start Game', null, this.start, true)
             : h('div', { class: 'columnItem' }, 'Waiting for the host to start the game.')
         )
       )

@@ -164,9 +164,9 @@ class WelcomeComponent extends Component {
   }
   options() {
     return h('div', { class: 'column', margin: 'auto' },
-      defaultButton('Create Room', () => this.setOption('create'), true),
+      defaultButton('Create Room', null, () => this.setOption('create'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
-      defaultButton('Join Room', () => this.setOption('join'), true),
+      defaultButton('Join Room', null, () => this.setOption('join'), true),
       h('div', { style: { display: 'block', height: '0.4em' } }),
       h('div', { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', width: '100%' } },
         h('div', { class: 'btn', onClick: () => this.setState({ howTo: true }) }, 'Learn to Play'),
@@ -175,8 +175,8 @@ class WelcomeComponent extends Component {
     )
   }
   create() {
-    let backProps = defaultButtonProps('Back', this.resetState, true);
-    let createProps = defaultButtonProps('Create Room', () => this.connectToRoom(true), true);
+    let backProps = defaultButtonProps('Back', null, this.resetState, true);
+    let createProps = defaultButtonProps('Create Room', null, () => this.connectToRoom(true), true);
     createProps.spinning = this.state.checkingRoom;
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),
@@ -195,8 +195,8 @@ class WelcomeComponent extends Component {
     )
   }
   join() {
-    let backProps = defaultButtonProps('Back', this.resetState, true);
-    let joinProps = defaultButtonProps('Join Room', () => this.connectToRoom(false), true);
+    let backProps = defaultButtonProps('Back', null, this.resetState, true);
+    let joinProps = defaultButtonProps('Join Room', null, () => this.connectToRoom(false), true);
     joinProps.spinning = this.state.checkingRoom;
     return h('div', { class: 'column', margin: 'auto' },
       this.errorMessage(),

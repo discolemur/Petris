@@ -21,6 +21,7 @@ class HexagonProps {
     this.transitionAll = false;
     this.spinning = false;
     this.position = null;
+    this.rotateText = false;
   }
 }
 
@@ -186,7 +187,11 @@ class Hexagon extends Component {
     if (this.style.spinning) {
       classes = classes + ' spinner';
     }
-    let positionStyle = {};
+    let positionStyle = {
+      overflow: 'hidden',
+      display: 'flex',
+      justifyContent: 'center'
+    };
     if (this.style.position) {
       positionStyle.position = this.style.position;
     }
@@ -196,17 +201,24 @@ class Hexagon extends Component {
     if (this.style.top) {
       positionStyle.top = top;
     }
-    positionStyle.width = this.style.hexWidth + 2 * this.style.borderWidth;
+    positionStyle.width = this.style.hexWidth + 6 * this.style.borderWidth;
     let fontSize = this.style.fontSize ? `${this.style.fontSize}px` : `${this.style.hexWidth / 6}px`;
     let color = (this.state.hover && this.style.hoverColor !== null) ? this.style.hoverColor : this.style.color;
-    return h('div', { class: 'hexCell', style: positionStyle },
-      h('div', { class: 'innerHexWrapper' },
-        h('div', { id: this.HEX_ID, class: classes, style: this.HEX_STYLE(), onClick: this.onClick },
-          h('div', { class: "hexTop", style: this.HEX_TOP_STYLE(), onClick: this.onClick }),
-          h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE(), onClick: this.onClick }),
-        ),
-        h('div', { class: 'innerHexTextWrapper' },
-          h('span', { style: { fontSize: fontSize, color: color } }, this.style.text)
+    let textClasses = this.style.rotateText ? 'innerHexTextWrapper rotateText' : 'innerHexTextWrapper';
+    return h('div', {
+      style: {
+        width: this.style.hexWidth + this.style.borderWidth * 6,
+      }
+    },
+      h('div', { class: 'hexCell', style: positionStyle },
+        h('div', { class: 'innerHexWrapper' },
+          h('div', { id: this.HEX_ID, class: classes, style: this.HEX_STYLE(), onClick: this.onClick },
+            h('div', { class: "hexTop", style: this.HEX_TOP_STYLE(), onClick: this.onClick }),
+            h('div', { class: "hexBottom", style: this.HEX_BOTTOM_STYLE(), onClick: this.onClick }),
+          ),
+          h('div', { class: textClasses },
+            h('span', { style: { fontSize: fontSize, color: color } }, this.style.text)
+          )
         )
       )
     )
@@ -215,13 +227,16 @@ class Hexagon extends Component {
 
 function defaultButtonWidth() {
   var wh = window.innerHeight;
-  return Math.min( 200, wh / 5 );
+  return Math.min(200, wh / 5);
 }
 
-function defaultButtonProps(text, onClick, enabled) {
+function defaultButtonProps(text, width, onClick, enabled) {
+  if (width === null) {
+    width = defaultButtonWidth();
+  }
   let props = new HexagonProps();
   props.text = text;
-  props.hexWidth = defaultButtonWidth();
+  props.hexWidth = width;
   props.borderWidth = 5;
   if (enabled) {
     props.borderColor = '#718EA4';
@@ -239,6 +254,6 @@ function defaultButtonProps(text, onClick, enabled) {
   return props;
 }
 
-var defaultButton = (text, onClick, enabled) => {
-  return h(Hexagon, { styleParams: defaultButtonProps(text, onClick, enabled) });
+var defaultButton = (text, width, onClick, enabled) => {
+  return h(Hexagon, { styleParams: defaultButtonProps(text, width, onClick, enabled) });
 }

@@ -83,8 +83,9 @@ class BoardComponent extends Component {
  * @param {Number} top
  * @param {function} onClick 
  */
-  boardCell(cell, left, top, onClick) {
+  boardCell(cell, left, top, rotateText, onClick) {
     let props = new HexagonProps();
+    props.rotateText = rotateText;
     props.onClick = onClick;
     props.left = left;
     props.top = top;
@@ -133,6 +134,7 @@ class BoardComponent extends Component {
     let dims = state.roomState.board.getDimensions(this.boardHexWidth);
     return h('div', {
       id: 'Board',
+      class: dims.rotate ? 'fullRotate' : null,
       style: {
         height: `${dims.height}px`,
         width: `${dims.width}px`
@@ -142,6 +144,7 @@ class BoardComponent extends Component {
         c,
         c.center[0] - dims.minX + 0.5,
         c.center[1] - dims.minY + 0.5,
+        dims.rotate,
         () => this.onCellClick(c)
       ))
     )

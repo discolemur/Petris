@@ -204,13 +204,16 @@ input {
       transform:rotate(360deg);
   }
 }
-
 .errormsg {
   color: red;
 }
-
 .sideBySide {
   display: flex;
   flex-direction: row;
   margin: 0 auto;
+}
+.fullRotate {
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
 }
