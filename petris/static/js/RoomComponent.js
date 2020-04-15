@@ -20,6 +20,7 @@ class RoomComponent extends Component {
     this.state.roomState = props.roomState;
     this.state.desiredNumTurns = 10;
     this.state.startFailed = false;
+    this.updateDimensions()
     if (props.roomState.isCreator) {
       this.pingForPlayers();
     }
@@ -73,7 +74,7 @@ class RoomComponent extends Component {
     }
   }
   playerList() {
-    let hexWidth = 100;
+    let hexWidth = Math.min(100, defaultButtonWidth(true, 5.5));
     let playerHexagons = [];
     for (let i = 0; i < this.state.roomState.players.length; ++i) {
       let player = this.state.roomState.players[i];
@@ -110,25 +111,24 @@ class RoomComponent extends Component {
       / (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn))
   }
   sliders() {
-    return [
-      h('div', { class: "slider" },
-        h('span', { class: "sliderPrompt" }, `Approximate Number of Turns: ${this.state.desiredNumTurns}`),
+    return h('div', { class: "sliders" },
+      h('span', { class: "sliderPrompt blockUnit" }, `Approximate Number of Turns: ${this.state.desiredNumTurns}`),
+      h('div', { class: "blockUnit"},
         h('span', { class: "sliderLimit" }, '3'),
         h('input', { type: "range", min: 3, max: 40, value: this.state.desiredNumTurns, onInput: this.adjustDesiredNumTurns }),
         h('span', { class: "sliderLimit" }, '40')
-      ), h('div', { class: "slider" },
-        h('span', { class: "sliderPrompt" }, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}`),
+      ),
+      h('span', { class: "sliderPrompt blockUnit" }, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}`),
+      h('div', { class: "blockUnit"},
         h('span', { class: "sliderLimit" }, '1'),
         h('input', { type: "range", min: 1, max: 10, value: this.state.roomState.colonizationsPerTurn, onInput: this.adjustColonizationsPerTurn }),
         h('span', { class: "sliderLimit" }, '10')
       )
-    ]
+    )
   }
   computerButtons() {
-    let addCompBtnProps = defaultButtonProps('Add Computer Player', null, () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
-    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', null, () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
-    addCompBtnProps.hexWidth = 75;
-    removeCompBtnProps.hexWidth = 75;
+    let addCompBtnProps = defaultButtonProps('Add Computer Player', defaultButtonWidth(true, 2) / 2, () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
+    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', defaultButtonWidth(true, 2) / 2, () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
     return h('div', {
       style: {
         width: '100%',
@@ -157,7 +157,7 @@ class RoomComponent extends Component {
           this.playerList(),
           state.roomState.isCreator ? this.computerButtons() : null,
           state.roomState.isCreator ? this.sliders() : null,
-          state.roomState.isCreator ? defaultButton('Start Game', null, this.start, true)
+          state.roomState.isCreator ? defaultButton('Start Game', defaultButtonWidth(true, 2), this.start, true)
             : h('div', { class: 'columnItem' }, 'Waiting for the host to start the game.')
         )
       )

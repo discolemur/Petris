@@ -1,3 +1,7 @@
+input {
+  max-width: 90%;
+}
+
 html,
 body,
 #Main,
@@ -53,6 +57,21 @@ body,
   font-size: 2rem;
   margin: auto 0;
 }
+@media only screen and (max-width: 675px) {
+  #Subtitle {
+    font-size: 1.6rem;
+  }
+}
+@media only screen and (max-width: 577px) {
+  #Subtitle {
+    font-size: 1.2rem;
+  }
+}
+@media only screen and (max-width: 359px) {
+  #Subtitle {
+    font-size: 1rem;
+  }
+}
 .playerScore, .playerScoreLower {
   position: absolute;
   display: flex;
@@ -101,8 +120,13 @@ body,
   align-items: center;
   position: relative;
 }
-.slider {
+.sliders {
   width: auto;
+}
+.blockUnit {
+  display: block;
+  width: auto;
+  text-align: center;
 }
 .sliderPrompt {
   font-size: 1.4rem;

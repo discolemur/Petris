@@ -225,9 +225,12 @@ class Hexagon extends Component {
   }
 }
 
-function defaultButtonWidth() {
-  var wh = window.innerHeight;
-  return Math.min(200, wh / 5);
+function defaultButtonWidth(isRow, numToFit) {
+  if (isRow) {
+    return Math.min(200, window.innerWidth / (numToFit + 1));
+  } else {
+    return Math.min(200, window.innerHeight / (numToFit + 1));
+  }
 }
 
 function defaultButtonProps(text, width, onClick, enabled) {
