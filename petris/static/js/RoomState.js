@@ -311,4 +311,12 @@ class RoomState {
     }
     return this;
   }
+  getWinner() {
+    let highest = Math.max.apply(null, this.players.map(p=>p.score));
+    let winners = this.players.filter(p=>p.score===highest);
+    if (winners.length !== 1) {
+      return null;
+    }
+    return winners[0];
+  }
 }

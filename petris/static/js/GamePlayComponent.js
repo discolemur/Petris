@@ -80,20 +80,25 @@ class GamePlayComponent extends Component {
     let availableMove = this.state.roomState.getAvailableMove();
     let numAvailableMoves = this.state.roomState.getNumAvailableMoves();
     let enabled = false;
-    let text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
-    if (availableMove == Moves.GAME_OVER) {
-      text = 'Game Over!';
-    } else if (this.state.roomState.isFrozen()) {
-      text = 'Waiting for everyone to finish.'
-    } else if (this.canEndTurn()) {
-      text = availableMove == Moves.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
-      enabled = true;
-    }
-    let btnProps = defaultButtonProps(text, hexWidth, this.endTurn, enabled);
+    let btnProps = defaultButtonProps('', hexWidth, this.endTurn, enabled);
     if (!enabled) {
       btnProps.BGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
     } else {
       btnProps.blinkBGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
+    }
+    btnProps.text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
+    if (availableMove == Moves.GAME_OVER) {
+      let winner = this.state.roomState.getWinner();
+      btnProps.text = 'Game Over! No winner.';
+      if (winner !== null) {
+        btnProps.text = `${winner.playerName} wins!`;
+        btnProps.BGColor = winner.color;
+      }
+    } else if (this.state.roomState.isFrozen()) {
+      btnProps.text = 'Waiting for everyone to finish.'
+    } else if (this.canEndTurn()) {
+      btnProps.text = availableMove == Moves.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
+      enabled = true;
     }
     btnProps.flatTop = this.state.rotatedBtn;
     btnProps.transitionAll = true;
