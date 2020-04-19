@@ -23,8 +23,21 @@ const MAX_PLAYERS = 10;
 /**
  * Color Defaults (now handled in colors.css, these constants are important to set the correct class name.)
  */
+const PLAYER_BORDER_COLORS = [
+    '#18305A',
+    '#874719',
+    '#828619',
+    '#817ABF',
+    '#10554C',
+    '#876019',
+    '#45145A',
+    '#597D17',
+    '#6E96B4',
+    '#6F1543']; // If you change player colors, please update this too.
 const ANTIBIOTIC_CLASS = 'Antibiotic';
 const ANTIBIOTIC_BLINK_CLASS = 'AntibioticBL';
+const ANTIBIOTIC_BORDER_COLOR = '#97F365';
+const BOARD_CELL_BORDER_COLOR = '#4C4C4C';
 const COMPENTITION_CLASS = 'Competition';
 const EMPTY_CLASS = 'EmptyCell';
 const NO_MOVE_CLASS = 'NoMove';

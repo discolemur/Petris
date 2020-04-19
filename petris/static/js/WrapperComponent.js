@@ -36,7 +36,7 @@ class WrapperComponent extends Component {
       hexagonProps.hexWidth = 40;
       hexagonProps.fontSize = 20;
       hexagonProps.borderWidth = 3;
-      hexagonProps.borderColor = PLAYER_CLASS_LIST[p.color_index];
+      hexagonProps.borderColor = PLAYER_BORDER_COLORS[p.color_index];
       hexagonProps.BGClass = WHITE_CLASS;
       pair.push(h('div', { class: className },
         h(Hexagon, { styleParams: hexagonProps }),
