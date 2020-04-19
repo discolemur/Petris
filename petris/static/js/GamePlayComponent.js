@@ -80,28 +80,34 @@ class GamePlayComponent extends Component {
     let availableMove = this.state.roomState.getAvailableMove();
     let numAvailableMoves = this.state.roomState.getNumAvailableMoves();
     let enabled = false;
-    let btnProps = defaultButtonProps('', hexWidth, this.endTurn, enabled);
-    if (!enabled) {
-      btnProps.BGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
-    } else {
-      btnProps.blinkBGColor = this.state.roomState.getPlayerColor(this.state.roomState.playerID);
-    }
-    btnProps.text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
+    let text = numAvailableMoves == 1 ? 'Place 1 Colony' : `Place ${numAvailableMoves} Colonies`;
+    let BGClass = null;
+    let blinkClass = null;
     if (availableMove == Moves.GAME_OVER) {
       let winner = this.state.roomState.getWinner();
-      btnProps.text = 'Game Over! No winner.';
+      text = 'Game Over! No winner.';
       if (winner !== null) {
-        btnProps.text = `${winner.playerName} wins!`;
-        btnProps.BGColor = winner.color;
+        text = `${winner.playerName} wins!`;
+        BGClass = PLAYER_CLASS_LIST[winner.color_index];
       }
     } else if (this.state.roomState.isFrozen()) {
-      btnProps.text = 'Waiting for everyone to finish.'
+      text = 'Waiting for everyone to finish.'
     } else if (this.canEndTurn()) {
-      btnProps.text = availableMove == Moves.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
+      text = availableMove == Moves.ANTIBIOTIC ? 'Add Antibiotic, or Press to End Turn' : 'Press to End Turn';
       enabled = true;
     }
+    if (!enabled) {
+      BGClass = PLAYER_CLASS_LIST[this.state.roomState.getPlayerColor(this.state.roomState.playerID)];
+    } else {
+      blinkClass = PLAYER_BLINK_CLASSES[this.state.roomState.getPlayerColor(this.state.roomState.playerID)];
+    }
+    let btnProps = defaultButtonProps(text, hexWidth, this.endTurn, enabled);
     btnProps.flatTop = this.state.rotatedBtn;
     btnProps.transitionAll = true;
+    btnProps.blinkClass = blinkClass;
+    if (BGClass !== null) {
+      btnProps.BGClass = BGClass;
+    }
     return h('div', {
       style: {
         width: 'auto',
@@ -136,7 +142,7 @@ class GamePlayComponent extends Component {
     let hexBtnWidth = isLandscape ? wrapperHeight / 4 : wrapperWidth / 4;
     let hexBtnMaxWidth = hexBtnWidth * 1.2398;
     let buttonWrapperHeight = isLandscape ? wrapperHeight : hexBtnMaxWidth;
-    let buttonWrapperWidth =  isLandscape ? hexBtnMaxWidth : wrapperWidth;
+    let buttonWrapperWidth = isLandscape ? hexBtnMaxWidth : wrapperWidth;
     let boardHeight = isLandscape ? wrapperHeight : wrapperHeight - hexBtnMaxWidth;
     let boardWidth = isLandscape ? wrapperWidth - hexBtnMaxWidth : wrapperWidth;
     this.state.roomState.board.setBoardHexWidth(boardWidth, boardHeight);

@@ -23,18 +23,18 @@ class BoardComponent extends Component {
    */
   adaptCellByAvailableMove(cell, props) {
     let availableMove = this.state.roomState.getAvailableMove();
-    let availableMoveColor = null;
+    let availableMoveClass = null;
     if (this.state.roomState.currentMove.cellHasMove(cell) != Moves.NO_MOVE) {
-      availableMoveColor = '#484848';
+      availableMoveClass = NO_MOVE_CLASS;
       props.hoverBorderColor = '#C30000';
     } else {
       if (availableMove == Moves.ANTIBIOTIC) {
-        availableMoveColor = ANTIBIOTIC_COLOR;
+        availableMoveClass = ANTIBIOTIC_CLASS;
       } else if (availableMove == Moves.COLONY) {
-        availableMoveColor = this.state.roomState.players.filter(p => p.playerID == this.state.roomState.playerID)[0].color;
+        availableMoveClass = PLAYER_CLASS_LIST[this.state.roomState.players.filter(p => p.playerID == this.state.roomState.playerID)[0].color_index];
       }
     }
-    props.hoverBGColor = availableMoveColor;
+    props.hoverBGClass = availableMoveClass;
     return props;
   }
   /**
@@ -44,13 +44,13 @@ class BoardComponent extends Component {
    */
   adaptCellByOccupation(cell, props) {
     let occupier = this.state.roomState.players.filter(p => p.playerID == cell.occupation);
-    props.BGColor = EMPTY_COLOR;
+    props.BGClass = EMPTY_CLASS;
     if (occupier.length == 1) {
-      props.BGColor = occupier[0].color;
+      props.BGClass = PLAYER_CLASS_LIST[occupier[0].color_index];
     } else if (cell.occupation == CellState.COMPETITION) {
-      props.BGColor = COMPENTITION_COLOR;
+      props.BGClass = COMPENTITION_CLASS;
     } else if (cell.occupation == CellState.NO_USER) {
-      props.BGColor = EMPTY_COLOR;
+      props.BGClass = EMPTY_CLASS;
     }
     return props;
   }
@@ -63,15 +63,15 @@ class BoardComponent extends Component {
     let currentMove = this.state.roomState.currentMove;
     if (currentMove !== null) {
       if (currentMove.colonies.indexOf(cell.id) >= 0) {
-        props.blinkBGColor = this.state.roomState.players.filter(p => p.playerID === currentMove.playerID)[0].color;
+        props.blinkClass = PLAYER_BLINK_CLASSES[this.state.roomState.players.filter(p => p.playerID === currentMove.playerID)[0].color_index];
       } else if (currentMove.antibiotic === cell.id) {
         props.text = 'antibiotic';
-        props.blinkBGColor = ANTIBIOTIC_COLOR;
+        props.blinkClass = ANTIBIOTIC_BLINK_CLASS;
       }
     }
     if (this.state.roomState.currentMove.frozen || cell.occupation !== CellState.NO_USER) {
       props.onClick = null;
-      props.hoverBGColor = null;
+      props.hoverBGClass = null;
       props.hoverBorderColor = null;
     }
     return props;
@@ -94,7 +94,7 @@ class BoardComponent extends Component {
     props.borderColor = '#4C4C4C';
     props.flatTop = true;
     if (cell.wasProtected) {
-      props.borderColor = ANTIBIOTIC_COLOR;
+      props.borderColor = ANTIBIOTIC_CLASS;
     }
     props = this.adaptCellByAvailableMove(cell, props);
     props = this.adaptCellByOccupation(cell, props);

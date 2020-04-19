@@ -10,7 +10,7 @@ class Player {
   constructor(playerName) {
     this.playerID = uuidv4();
     this.playerName = playerName;
-    this.color = NO_PLAYER_COLOR;
+    this.color_index = NO_PLAYER_INDEX;
     this.score = 0;
     this.latestPing = new Date().getTime();
     this.type = Player.HUMAN;

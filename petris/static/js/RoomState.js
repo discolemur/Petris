@@ -30,13 +30,13 @@ class RoomState {
     let p5 = new Player('jessica').setIsComputer();
     let p6 = new Player('rebecca').setIsComputer();
     let p7 = new Player('sydney').setIsComputer();
-    p1.color = PLAYER_COLOR_LIST[0];
-    p2.color = PLAYER_COLOR_LIST[1];
-    p3.color = PLAYER_COLOR_LIST[2];
-    p4.color = PLAYER_COLOR_LIST[3];
-    p5.color = PLAYER_COLOR_LIST[4];
-    p6.color = PLAYER_COLOR_LIST[5];
-    p7.color = PLAYER_COLOR_LIST[6];
+    p1.color_index = PLAYER_COLOR_INDICES[0];
+    p2.color_index = PLAYER_COLOR_INDICES[1];
+    p3.color_index = PLAYER_COLOR_INDICES[2];
+    p4.color_index = PLAYER_COLOR_INDICES[3];
+    p5.color_index = PLAYER_COLOR_INDICES[4];
+    p6.color_index = PLAYER_COLOR_INDICES[5];
+    p7.color_index = PLAYER_COLOR_INDICES[6];
     this.players = [p1, p2, p3, p4, p5, p6, p7];
     this.playerName = p1.playerName;
     this.roomName = 'sandbox';
@@ -77,13 +77,13 @@ class RoomState {
     return Array.from(Object.values(tmp));
   }
   _setColors(plist) {
-    let used_colors = plist.map(p => p.color);
-    if (used_colors.indexOf(NO_PLAYER_COLOR) >= 0 || used_colors.indexOf(null) >= 0 || used_colors.indexOf(undefined) >= 0) {
-      let available_colors = PLAYER_COLOR_LIST.filter(c => used_colors.indexOf(c) < 0);
+    let used_colors = plist.map(p => p.color_index);
+    if (used_colors.indexOf(NO_PLAYER_INDEX) >= 0 || used_colors.indexOf(null) >= 0 || used_colors.indexOf(undefined) >= 0) {
+      let available_colors = PLAYER_COLOR_INDICES.filter(c => used_colors.indexOf(c) < 0);
       let counter = 0;
       for (let player of plist) {
-        if (player.color === undefined || player.color === null || player.color === NO_PLAYER_COLOR) {
-          player.color = available_colors[counter++];
+        if (player.color_index === undefined || player.color_index === null || player.color_index === NO_PLAYER_INDEX) {
+          player.color_index = available_colors[counter++];
         }
       }
     }
@@ -284,7 +284,7 @@ class RoomState {
     return false;
   }
   getPlayerColor(pID) {
-    return this.players.filter(p => p.playerID == pID)[0].color;
+    return this.players.filter(p => p.playerID == pID)[0].color_index;
   }
   dropUnresponsivePlayers() {
     // Only drop players if the game hasn't started yet.

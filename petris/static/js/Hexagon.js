@@ -6,13 +6,12 @@ class HexagonProps {
     this.fontSize = null;
     this.hexWidth = null;
     this.borderWidth = 0;
-    this.BGColor = null;
+    this.BGClass = null;
     this.color = '#000000';
-    this.blinkBGColor = null;
-    this.blinkBorderColor = null;
+    this.blinkClass = null;
     this.borderColor = null;
     this.hoverColor = null;
-    this.hoverBGColor = null;
+    this.hoverBGClass = null;
     this.hoverBorderColor = null;
     this.left = null;
     this.top = null;
@@ -30,18 +29,14 @@ class Hexagon extends Component {
     super(props);
     this.HEX_ID = uuidv4();
     this._borderColor = this._borderColor.bind(this);
-    this._backgroundColor = this._backgroundColor.bind(this);
+    this._backgroundClass = this._backgroundClass.bind(this);
     this.HEX_STYLE = this.HEX_STYLE.bind(this);
     this._getTopBottomUnits = this._getTopBottomUnits.bind(this);
     this.HEX_TOP_STYLE = this.HEX_TOP_STYLE.bind(this);
     this.HEX_BOTTOM_STYLE = this.HEX_BOTTOM_STYLE.bind(this);
-    this.blinkUpdateTrigger = this.blinkUpdateTrigger.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
     this.onClick = this.onClick.bind(this);
-    this.shouldBlink = this.shouldBlink.bind(this);
-    this.blinkOn = true;
-    this.blinking = false;
     this.setState({ hover: false });
   }
   /**
@@ -51,26 +46,21 @@ class Hexagon extends Component {
     let bColor = this.style.borderColor;
     if (this.state.hover && this.style.hoverBorderColor !== null) {
       bColor = this.style.hoverBorderColor;
-    } else if (this.style.blinkBorderColor !== null && this.blinkOn) {
-      bColor = this.style.blinkBorderColor;
     }
     return bColor;
   }
-  _backgroundColor() {
-    let bgColor = this.style.BGColor;
-    if (this.state.hover && this.style.hoverBGColor !== null) {
-      bgColor = this.style.hoverBGColor;
-    } else if (this.style.blinkBGColor !== null && this.blinkOn) {
-      bgColor = this.style.blinkBGColor;
+  _backgroundClass() {
+    let bgClass = this.style.BGClass;
+    if (this.state.hover && this.style.hoverBGClass !== null) {
+      bgClass = this.style.hoverBGClass;
     }
-    return bgColor;
+    return bgClass;
   }
   HEX_STYLE() {
     let height = 0.57735026 * this.style.hexWidth;
     let margin = 0.288675135 * this.style.hexWidth;
     let bColor = this._borderColor();
     let rv = {
-      backgroundColor: this._backgroundColor(),
       height: `${height}px`,
       marginTop: `${margin}px`,
       marginBottom: `${margin}px`,
@@ -136,16 +126,6 @@ class Hexagon extends Component {
     document.removeEventListener('mouseenter', this.onMouseEnter, true);
     document.removeEventListener('mouseleave', this.onMouseLeave, true);
   }
-  blinkUpdateTrigger() {
-    this.blinking = true;
-    setTimeout(() => {
-      if (this.blinking) {
-        this.blinkUpdateTrigger();
-      }
-    }, this.blinkOn ? 300 : 700);
-    this.blinkOn = !this.blinkOn;
-    this.setState({});
-  }
   onMouseEnter(e) {
     if (e.target.id === this.HEX_ID) {
       this.setState({ hover: true });
@@ -163,21 +143,12 @@ class Hexagon extends Component {
       this.style.onClick();
     }
   }
-  shouldBlink() {
-    return this.style.blinkBGColor !== null || this.style.blinkBorderColor !== null;
-  }
   render(props, state) {
+    // TODO: make the changes in colors.css work!
     this.style = props.styleParams;
-    if (this.shouldBlink() && !this.blinking) {
-      this.blinking = true;
-      this.blinkUpdateTrigger();
-    }
-    if (!this.shouldBlink()) {
-      this.blinking = false;
-    }
     let left = this.style.left * this.style.hexWidth;
     let top = this.style.top * this.style.hexWidth;
-    let classes = 'hexagon';
+    let classes = `hexagon ${this._backgroundClass()}`;
     if (this.style.flatTop) {
       classes = classes + ' rotateHex';
     }
@@ -186,6 +157,9 @@ class Hexagon extends Component {
     }
     if (this.style.spinning) {
       classes = classes + ' spinner';
+    }
+    if (this.style.blinkClass !== null) {
+      classes = classes + ` ${this.style.blinkClass}`;
     }
     let positionStyle = {
       overflow: 'hidden',
@@ -243,13 +217,13 @@ function defaultButtonProps(text, width, onClick, enabled) {
   props.borderWidth = 5;
   if (enabled) {
     props.borderColor = '#718EA4';
-    props.BGColor = '#496D89';
+    props.BGClass = ENABLED_BUTTON_CLASS;
     props.hoverColor = '#123652';
-    props.hoverBGColor = 'white';
+    props.hoverBGClass = WHITE_CLASS;
     props.onClick = onClick;
   } else {
     props.borderColor = '#101010';
-    props.BGColor = '#4C4C4C';
+    props.BGClass = DISABLED_BUTTON_CLASS;
     props.onClick = () => { };
   }
   props.color = '#FFFFFF'

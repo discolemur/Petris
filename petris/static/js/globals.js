@@ -2,52 +2,44 @@
 /**
  * Connection Defaults
  */
-var TIME_UNTIL_CREATE = 1000;
-var JOIN_ROOM_TIMEOUT = 1000;
-var PING_TIMEOUT = 9 * 1000; // 9 seconds
-var ROOM_PING_FREQUENCY = 3 * 1000; // 3 seconds
-var GAME_PING_FREQUENCY = 5 * 1000; // 5 seconds
-
 // This is how long to wait for a response before assuming the room is empty.
-var TIME_UNTIL_CREATE = 1000;
-var JOIN_ROOM_TIMEOUT = 1000;
+const TIME_UNTIL_CREATE = 1000;
+const JOIN_ROOM_TIMEOUT = 1000;
 
+const PING_TIMEOUT = 9 * 1000; // 9 seconds
+const ROOM_PING_FREQUENCY = 3 * 1000; // 3 seconds
+const GAME_PING_FREQUENCY = 5 * 1000; // 5 seconds
 
 /**
  * Game Play Defaults
  */
-var DEFAULT_BOARD_CELL_WIDTH = 60;
-var DEFAULT_BOARD_WIDTH = 24;
-var DEFAULT_BOARD_HEIGHT = 7;
-var DEFAULT_COLONIZATIONS_PER_TURN = 2;
-var MAX_PLAYERS = 10;
+const DEFAULT_BOARD_CELL_WIDTH = 60;
+const DEFAULT_BOARD_WIDTH = 24;
+const DEFAULT_BOARD_HEIGHT = 7;
+const DEFAULT_COLONIZATIONS_PER_TURN = 2;
+const MAX_PLAYERS = 10;
 
 
 /**
- * Color Defaults
+ * Color Defaults (now handled in colors.css, these constants are important to set the correct class name.)
  */
-var EMPTY_COLOR = '#C4C4C4'; // '#C2B790';
-var COMPENTITION_COLOR = '#222';
-var ANTIBIOTIC_COLOR = '#97F365';
-
-var NO_PLAYER_COLOR = '#AAAAAA';
-var PLAYER_COLOR_LIST = [
-    '#18305A',
-    '#874719',
-    '#828619',
-    '#817ABF',
-    '#10554C',
-    '#876019',
-    '#45145A',
-    '#597D17',
-    '#6E96B4',
-    '#6F1543'
-]
+const ANTIBIOTIC_CLASS = 'Antibiotic';
+const ANTIBIOTIC_BLINK_CLASS = 'AntibioticBL';
+const COMPENTITION_CLASS = 'Competition';
+const EMPTY_CLASS = 'EmptyCell';
+const NO_MOVE_CLASS = 'NoMove';
+const WHITE_CLASS = 'WhiteBackground';
+const ENABLED_BUTTON_CLASS = 'EnabledButton';
+const DISABLED_BUTTON_CLASS = 'DisabledButton';
+const PLAYER_COLOR_INDICES = [0,1,2,3,4,5,6,7,8,9];
+const NO_PLAYER_INDEX = 10;
+const PLAYER_CLASS_LIST = ['P1','P2','P3','P4','P5','P6','P7','P8','P9','P10','NoPlayer'];
+const PLAYER_BLINK_CLASSES = ['P1BL','P2BL','P3BL','P4BL','P5BL','P6BL','P7BL','P8BL','P9BL','P10BL'];
 
 /**
  * Random
  */
-var COMPUTER_PLAYER_NAMES = [
+const COMPUTER_PLAYER_NAMES = [
     'Escherichia',
     'Aeromonas',
     'Brucella',
@@ -66,18 +58,22 @@ var COMPUTER_PLAYER_NAMES = [
 /**
  * CellState gives global variables important to the state of the board. 
  */
-var CellState = {
+const CellState = {
     NO_USER: -1,
     ANTIBIOTIC: -2,
     COMPETITION: -3,
 };
 
-var Moves = {
+const Moves = {
     COLONY: 10,
     ANTIBIOTIC: 20,
     NO_MOVE: false,
     GAME_OVER: -100
 };
+
+/**
+ * Helper functions
+ */
 
 function windowIsLandscape() {
     return window.innerWidth > window.innerHeight;

@@ -81,7 +81,7 @@ class RoomComponent extends Component {
       let hexProps = new HexagonProps();
       hexProps.text = player.type == Player.HUMAN ? player.playerName : 'Computer Player';
       hexProps.color = '#FFF';
-      hexProps.BGColor = player.color;
+      hexProps.BGClass = PLAYER_CLASS_LIST[player.color_index];
       hexProps.hexWidth = hexWidth;
       hexProps.position = 'absolute';
       hexProps.top = (i % 2) * 0.86;

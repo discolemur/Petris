@@ -1,0 +1,117 @@
+.P1BL {
+    animation: blinkP1 1.2s infinite;
+}
+.P1 {
+    background-color: #18305A;
+}
+@keyframes blinkP1{
+    80%{    background-color: #18305A; }
+}
+.P2BL {
+    animation: blinkP2 1.2s infinite;
+}
+.P2 {
+    background-color: #874719;
+}
+@keyframes blinkP2{
+    80%{    background-color: #874719; }
+}
+.P3BL {
+    animation: blinkP3 1.2s infinite;
+}
+.P3 {
+    background-color: #828619;
+}
+@keyframes blinkP3{
+    80%{    background-color: #828619; }
+}
+.P4BL {
+    animation: blinkP4 1.2s infinite;
+}
+.P4 {
+    background-color: #817ABF;
+}
+@keyframes blinkP4{
+    80%{    background-color: #817ABF; }
+}
+.P5BL {
+    animation: blinkP5 1.2s infinite;
+}
+.P5 {
+    background-color: #10554C;
+}
+@keyframes blinkP5{
+    80%{    background-color: #10554C; }
+}
+.P6BL {
+    animation: blinkP6 1.2s infinite;
+}
+.P6 {
+    background-color: #876019;
+}
+@keyframes blinkP6{
+    80%{    background-color: #876019; }
+}
+.P7BL {
+    animation: blinkP7 1.2s infinite;
+}
+.P7 {
+    background-color: #45145A;
+}
+@keyframes blinkP7{
+    80%{    background-color: #45145A; }
+}
+.P8BL {
+    animation: blinkP8 1.2s infinite;
+}
+.P8 {
+    background-color: #597D17;
+}
+@keyframes blinkP8{
+    80%{    background-color: #597D17;  }
+}
+.P9BL {
+    animation: blinkP9 1.2s infinite;
+}
+.P9 {
+    background-color: #6E96B4;
+}
+@keyframes blinkP9{
+    80%{    background-color: #6E96B4; }
+}
+.P10BL {
+    animation: blinkP10 1.2s infinite;
+}
+.P10 {
+    background-color: #6F1543;
+}
+@keyframes blinkP10{
+    80%{    background-color: #6F1543; }
+}
+.AntibioticBL {
+    animation: blinkAntibiotic 1.2s infinite;
+}
+.Antibiotic {
+    background-color: #97F365;
+}
+@keyframes blinkAntibiotic{
+    80%{    background-color: #97F365; }
+}
+.Competition {
+    background-color: #222;
+}
+.NoMove {
+    background-color: #484848;
+}
+.EmptyCell {
+    background-color: #C4C4C4; /* '#C2B790' */
+}
+.EnabledButton {
+    background-color: #496D89;
+}
+.DisabledButton {
+    background-color: #4C4C4C;
+}
+.WhiteBackground {
+    background-color: #FFF;
+}
