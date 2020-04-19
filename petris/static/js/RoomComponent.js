@@ -62,6 +62,7 @@ class RoomComponent extends Component {
       let player = msg.player;
       if (this.state.roomState.players.indexOf(player.playerID) == -1) {
         this.setState({ roomState: this.state.roomState.addPlayer(player) });
+        this.updateDimensions();
         COMMUNICATOR.sendObject({
           gameProps: this.state.roomState.getGameProps()
         });
@@ -113,13 +114,13 @@ class RoomComponent extends Component {
   sliders() {
     return h('div', { class: "sliders" },
       h('span', { class: "sliderPrompt blockUnit" }, `Approximate Number of Turns: ${this.state.desiredNumTurns}`),
-      h('div', { class: "blockUnit"},
+      h('div', { class: "blockUnit" },
         h('span', { class: "sliderLimit" }, '3'),
         h('input', { type: "range", min: 3, max: 40, value: this.state.desiredNumTurns, onInput: this.adjustDesiredNumTurns }),
         h('span', { class: "sliderLimit" }, '40')
       ),
       h('span', { class: "sliderPrompt blockUnit" }, `Colonizations per turn: ${this.state.roomState.colonizationsPerTurn}`),
-      h('div', { class: "blockUnit"},
+      h('div', { class: "blockUnit" },
         h('span', { class: "sliderLimit" }, '1'),
         h('input', { type: "range", min: 1, max: 10, value: this.state.roomState.colonizationsPerTurn, onInput: this.adjustColonizationsPerTurn }),
         h('span', { class: "sliderLimit" }, '10')
@@ -127,8 +128,18 @@ class RoomComponent extends Component {
     )
   }
   computerButtons() {
-    let addCompBtnProps = defaultButtonProps('Add Computer Player', defaultButtonWidth(true, 2) / 2, () => this.setState({ roomState: this.state.roomState.addComputer() }), true);
-    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', defaultButtonWidth(true, 2) / 2, () => this.setState({ roomState: this.state.roomState.removeComputer() }), true);
+    let addCompBtnProps = defaultButtonProps('Add Computer Player', defaultButtonWidth(true, 2) / 2, () => {
+      this.setState({
+        roomState: this.state.roomState.addComputer()
+      })
+      this.updateDimensions();
+    }, true);
+    let removeCompBtnProps = defaultButtonProps('Drop Computer Player', defaultButtonWidth(true, 2) / 2, () => {
+      this.setState({
+        roomState: this.state.roomState.removeComputer()
+      })
+      this.updateDimensions();
+    }, true);
     return h('div', {
       style: {
         width: '100%',
