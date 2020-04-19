@@ -94,10 +94,12 @@ class RoomComponent extends Component {
     return h('div', { style: { height: `${totalHeight}px`, width: `${totalWidth}px`, display: 'block', position: 'relative' } }, playerHexagons);
   }
   updateDimensions() {
-    let optimalNumCells = this.state.desiredNumTurns * (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn);
-    let width = Math.round(Math.sqrt(optimalNumCells));
-    let height = Math.ceil(optimalNumCells / width);
-    this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', height).setBasicProperty('boardWidth', width) })
+    if (this.state.roomState.isCreator) {
+      let optimalNumCells = this.state.desiredNumTurns * (this.state.roomState.players.length * this.state.roomState.colonizationsPerTurn);
+      let width = Math.round(Math.sqrt(optimalNumCells));
+      let height = Math.ceil(optimalNumCells / width);
+      this.setState({ roomState: this.state.roomState.setBasicProperty('boardHeight', height).setBasicProperty('boardWidth', width) })
+    }
   }
   adjustColonizationsPerTurn(inputEvent) {
     this.setState({ roomState: this.state.roomState.setBasicProperty('colonizationsPerTurn', inputEvent.target.valueAsNumber) });
