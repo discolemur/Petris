@@ -45,6 +45,9 @@ body,
 }
 #BannerScores .hexagon span {
   font-weight: 900;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
 }
 #Title {
   font-size: 4rem;
@@ -52,6 +55,9 @@ body,
   margin: 0 20px;
   flex-shrink: 0;
   font-size: '4rem';
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
 }
 #Subtitle {
   font-size: 2rem;
@@ -82,6 +88,9 @@ body,
 }
 .playerScore span, .playerScoreLower span {
   font-size: 2rem;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
 }
 .playerScoreLower {
   top: 34px;

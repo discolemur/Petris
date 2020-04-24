@@ -40,7 +40,7 @@ class WrapperComponent extends Component {
       hexagonProps.BGClass = WHITE_CLASS;
       pair.push(h('div', { class: className },
         h(Hexagon, { styleParams: hexagonProps }),
-        h('span', { style: { marginLeft: '10px' } }, `${p.playerName}`)
+        h('span', { style: { marginLeft: '10px', color: PLAYER_BORDER_COLORS[p.color_index] } }, `${p.playerName}`)
       ));
       if (i % 2 == 1) {
         elements.push(h('div', { class: 'scorePair' }, pair));

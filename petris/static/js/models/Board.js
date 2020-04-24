@@ -17,6 +17,10 @@ class Board {
         this.width = width !== null ? width : DEFAULT_BOARD_WIDTH;
         this.height = height !== null ? height : DEFAULT_BOARD_HEIGHT;
         this.hexWidth = DEFAULT_BOARD_CELL_WIDTH;
+        this.minX = 0;
+        this.minY = 0;
+        this.maxX = 0;
+        this.maxY = 0;
         this.cells = {}
         this.makeCells();
     }
@@ -56,6 +60,10 @@ class Board {
                 this.cells[cell.id] = cell;
             }
         }
+        this.minX = Math.min.apply(null, this.getCells().map(c => c.center[0]));
+        this.maxX = Math.max.apply(null, this.getCells().map(c => c.center[0]));
+        this.minY = Math.min.apply(null, this.getCells().map(c => c.center[1]));
+        this.maxY = Math.max.apply(null, this.getCells().map(c => c.center[1]));
         this.confirmBoardCreated();
     }
     /**
@@ -220,32 +228,24 @@ class Board {
      * @param {*} boardHeight 
      */
     setBoardHexWidth(boardWidth, boardHeight) {
-        let minX = Math.min.apply(null, this.getCells().map(c => c.center[0]));
-        let maxX = Math.max.apply(null, this.getCells().map(c => c.center[0]));
-        let minY = Math.min.apply(null, this.getCells().map(c => c.center[1]));
-        let maxY = Math.max.apply(null, this.getCells().map(c => c.center[1]));
-        let heightMax = boardHeight / (maxY - minY + 1.4);
-        let widthMax = boardWidth / (maxX - minX + 1.4);
+        let heightMax = boardHeight / (this.maxY - this.minY + 1.4);
+        let widthMax = boardWidth / (this.maxX - this.minX + 1.4);
         this.hexWidth = Math.min(heightMax, widthMax);
     }
     /**
      * Returns whether the board should rotate.
      */
     shouldRotate() {
-        this.getDimensions().rotate;
+        return this.getDimensions().rotate;
     }
     getDimensions() {
         let isLandscape = windowIsLandscape();
-        let minX = Math.min.apply(null, this.getCells().map(c => c.center[0]));
-        let maxX = Math.max.apply(null, this.getCells().map(c => c.center[0]));
-        let minY = Math.min.apply(null, this.getCells().map(c => c.center[1]));
-        let maxY = Math.max.apply(null, this.getCells().map(c => c.center[1]));
-        let height = (maxY - minY + 1.4) * this.hexWidth;
-        let width = (maxX - minX + 1.4) * this.hexWidth;
+        let height = (this.maxY - this.minY + 1.4) * this.hexWidth;
+        let width = (this.maxX - this.minX + 1.4) * this.hexWidth;
         let rotate = (isLandscape && (height > width)) || (!isLandscape && (width > height));
         return {
-            minX: minX,
-            minY: minY,
+            minX: this.minX,
+            minY: this.minY,
             height: height,
             width: width,
             rotate: rotate,
