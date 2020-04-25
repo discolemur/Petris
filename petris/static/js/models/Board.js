@@ -27,6 +27,9 @@ class Board {
     getCells() {
         return Object.values(this.cells);
     }
+    getEmptyCells() { // TODO consider improving efficiency for large boards
+        return this.getCells().filter(c => (c.occupation == CellState.NO_USER));
+    }
     makeTopRow() {
         // I define the pattern as the order of link positions from each cell n to its neighbor n+1 from the perspective of n.
         // The shape of the top row repeats [ 1, 1, 2, 2, 1, 2 ] this.width-1 times.

@@ -144,7 +144,6 @@ class Hexagon extends Component {
     }
   }
   render(props, state) {
-    // TODO: make the changes in colors.css work!
     this.style = props.styleParams;
     let left = this.style.left * this.style.hexWidth;
     let top = this.style.top * this.style.hexWidth;

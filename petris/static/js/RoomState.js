@@ -201,15 +201,16 @@ class RoomState {
     return this;
   }
   _getEmptyCells() {
-    return this.board.getCells().filter(c => (c.occupation == CellState.NO_USER));
+    return this.board.getEmptyCells();
   }
   /**
    * Returns list of empty cells adjacent to property owned by player.
    * @param {Player} player 
+   * 
+   * NOTE: this may be inefficient, but it will become more efficient as the board gets more full (fewer empty cells to search through).
    */
   _getEmptyAdjacentCells(playerID) {
-    let ownedEdges = this.board.getCells().filter(c => c.occupation == playerID).filter(c => c.hasUnoccupiedNeighbor());
-    return this._removeDuplicates(ownedEdges.map(edge => edge.getUnoccupiedNeighbors()).flat(), 'id');
+    return this.board.getEmptyCells().filter(c => c.hasNeighbor(playerID));
   }
   _autoMove(playerID) {
     let emptyCells = this._getEmptyCells();
@@ -253,9 +254,8 @@ class RoomState {
       return Moves.COLONY;
     }
     let am = this.currentMove.getAvailableMove();
-    let emptyCells = this.board.getCells().filter(c => c.occupation == CellState.NO_USER);
-    if (emptyCells.length == 0
-      || emptyCells.filter(c => this.currentMove.cellHasMove(c) == Moves.NO_MOVE).length == 0) {
+    let emptyCells = this.board.getEmptyCells();
+    if (emptyCells.filter(c => this.currentMove.cellHasMove(c) == Moves.NO_MOVE).length == 0) {
       am = Moves.NO_MOVE;
     }
     if (this.currentMove.isEmpty() && emptyCells.length == 0) {

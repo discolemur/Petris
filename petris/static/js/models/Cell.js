@@ -88,6 +88,9 @@ class Cell {
             (n) => (n !== null && (n.id > this.id && n.occupation == this.occupation))
         ).length;
     }
+    hasNeighbor(neighborID) {
+        return this.neighbors.filter(n=>(n!==null && n.occupation === neighborID)).length > 0;
+    }
     hasUnoccupiedNeighbor() {
         for (let i = 0; i < 6; ++i) {
             if (this.neighbors[i] !== null && this.neighbors[i].occupation == CellState.NO_USER) {

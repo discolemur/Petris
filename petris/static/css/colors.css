@@ -1,3 +1,6 @@
+/*
+NOTE: if you change colors here, you must also change globals.js PLAYER_BORDER_COLORS list.
+*/
 .P1BL {
     animation: blinkP1 1.2s infinite;
 }
